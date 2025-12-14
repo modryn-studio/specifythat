@@ -4,6 +4,8 @@
 
 **Turn ideas into build-ready specs in under 30 minutes.**
 
+➡️ **[Try it now at specifythat.com](https://specifythat.com/)**
+
 SpecifyThat is a conversational spec generator for developers who struggle to turn ideas into executable build instructions. It conducts a targeted interview, asking specific questions about your project. When you don't know an answer, SpecifyThat provides "top 0.1% thinking" to fill gaps.
 
 ## Features
