@@ -62,7 +62,7 @@
 
 **4:05 PM** - Deployed to Production 🚀
 - Committed and pushed to GitHub: https://github.com/modryn-studio/specifythat
-- Deployed to Vercel: https://specifythat.vercel.app/
+- Deployed to Vercel: https://specifythat.com/
 - Environment variables configured
 - Live and fully functional!
 
@@ -73,7 +73,7 @@
 ## Progress Log
 
 ### Current Status: 🎉 LIVE IN PRODUCTION
-- **Live URL**: https://specifythat.vercel.app/
+- **Live URL**: https://specifythat.com/
 - **GitHub**: https://github.com/modryn-studio/specifythat
 - **Time to Ship**: 45 minutes (well under 48-hour target)
 - All 11 phases completed
