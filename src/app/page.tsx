@@ -22,6 +22,11 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="max-w-5xl mx-auto px-4 py-20 md:py-32">
+        {/* Email Capture - Top of page */}
+        <div className="mb-16">
+          <EmailCapture />
+        </div>
+
         <div className="text-center space-y-10">
           <div className="space-y-6">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0A2540] tracking-tight leading-[1.15]">
@@ -104,11 +109,6 @@ export default function Home() {
               Generate My Spec →
             </Link>
           </div>
-        </div>
-
-        {/* Email Capture Section */}
-        <div className="mt-24 md:mt-32">
-          <EmailCapture />
         </div>
       </main>
 
