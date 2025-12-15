@@ -34,11 +34,16 @@ export default function FeedbackButton() {
         }
       });
 
-      // FormSubmit returns JSON when Accept header is set
-      const result = await response.json();
-
-      if (result.success !== 'true' && !response.ok) {
+      // FormSubmit returns 200 even on success, just check if response is ok
+      if (!response.ok) {
         throw new Error('Failed to send feedback');
+      }
+
+      // Try to parse JSON response, but don't fail if it's not valid
+      try {
+        await response.json();
+      } catch (e) {
+        // FormSubmit might not return valid JSON, but that's okay if status is 200
       }
 
       // Store locally as backup
