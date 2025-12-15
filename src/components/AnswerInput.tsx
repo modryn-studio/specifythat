@@ -69,14 +69,20 @@ export function AnswerInput({
     textareaRef.current?.focus();
   }, []);
 
-  // Clear validation error when answer changes (only if it becomes valid)
+  // Clear validation error when answer changes
   useEffect(() => {
-    if (validationError && answer.trim()) {
-      // Check both gibberish and question-specific validation
-      const gibberishError = validateMeaningfulInput(answer);
-      const questionError = validateAnswer(answer, validation);
-      if (!gibberishError && !questionError) {
+    if (validationError) {
+      const trimmed = answer.trim();
+      // Clear error if field is empty OR if input becomes valid
+      if (!trimmed) {
         setValidationError(null);
+      } else {
+        // Check both gibberish and question-specific validation
+        const gibberishError = validateMeaningfulInput(answer);
+        const questionError = validateAnswer(answer, validation);
+        if (!gibberishError && !questionError) {
+          setValidationError(null);
+        }
       }
     }
   }, [answer, validation, validationError]);
@@ -161,6 +167,12 @@ export function AnswerInput({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleIDontKnowClick = () => {
+    setValidationError(null);
+    setAnswer('');
+    onIDontKnow();
   };
 
   const handleAcceptAI = () => {
@@ -306,7 +318,7 @@ export function AnswerInput({
           <>
             <button
               type="button"
-              onClick={onIDontKnow}
+              onClick={handleIDontKnowClick}
               disabled={isLoading || answer.trim().length > 0 || !!attachedFile}
               className="px-5 py-3 text-purple-600 border-2 border-purple-300 rounded-xl hover:bg-purple-50 hover:border-purple-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >

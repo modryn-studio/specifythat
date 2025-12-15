@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { IdeationAnswers } from '@/lib/types';
+import { validateMeaningfulInput } from '@/lib/sanitize';
 import { 
   Zap, 
   ShoppingCart, 
@@ -67,6 +68,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   
   // Generated description preview state
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
@@ -82,9 +84,11 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
     if (categoryId === 'other') {
       setSelectedCategory('other');
       setCurrentInput('');
+      setValidationError(null);
     } else {
       setSelectedCategory(categoryId);
       setCurrentInput(category?.label || '');
+      setValidationError(null);
     }
   };
 
@@ -96,6 +100,20 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
     
     if (!value && !isCategoryStep) return;
     if (isCategoryStep && !selectedCategory && !currentInput.trim()) return;
+
+    // Validate for gibberish (text inputs only, not predefined categories)
+    if (!isCategoryStep || selectedCategory === 'other') {
+      if (value) {
+        const gibberishError = validateMeaningfulInput(value);
+        if (gibberishError) {
+          setValidationError(gibberishError);
+          return;
+        }
+      }
+    }
+
+    // Clear validation error if we got this far
+    setValidationError(null);
 
     const newAnswers = {
       ...answers,
@@ -120,6 +138,9 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
       return;
     }
     
+    // Clear validation error
+    setValidationError(null);
+    
     if (currentStep > 0) {
       const previousStep = IDEATION_STEPS[currentStep - 1];
       setCurrentInput(answers[previousStep.field] || '');
@@ -133,6 +154,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
   const handleSkip = () => {
     setSelectedCategory(null);
     setCurrentInput('');
+    setValidationError(null);
     
     if (isLastStep) {
       generateDescription(answers);
@@ -172,7 +194,16 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
 
   // Handle accepting the generated description
   const handleAcceptDescription = () => {
-    onComplete(editedDescription.trim() || generatedDescription || '');
+    const trimmed = editedDescription.trim();
+    
+    // Validate for gibberish
+    const gibberishError = validateMeaningfulInput(trimmed);
+    if (gibberishError) {
+      setValidationError(gibberishError);
+      return;
+    }
+    
+    onComplete(trimmed || generatedDescription || '');
   };
 
   // Has at least one answer (can generate even if skipping some)
@@ -226,12 +257,24 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
             </label>
             <textarea
               value={editedDescription}
-              onChange={(e) => setEditedDescription(e.target.value)}
-              className="w-full min-h-[160px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 resize-none"
+              onChange={(e) => {
+                setEditedDescription(e.target.value);
+                setValidationError(null);
+              }}
+              className={`w-full min-h-[160px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
+                validationError 
+                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
+                  : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+              }`}
             />
             <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> AI-generated based on your answers. Feel free to tweak it.
             </p>
+            {validationError && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-red-600 text-sm">{validationError}</p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -325,9 +368,16 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                 <input
                   type="text"
                   value={currentInput}
-                  onChange={(e) => setCurrentInput(e.target.value)}
+                  onChange={(e) => {
+                    setCurrentInput(e.target.value);
+                    setValidationError(null);
+                  }}
                   placeholder="Describe your category..."
-                  className="w-full p-4 text-base text-[#0A2540] bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+                  className={`w-full p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 ${
+                    validationError 
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
+                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+                  }`}
                   autoFocus
                 />
               )}
@@ -336,16 +386,23 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
             // Text input for other steps
             <textarea
               value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
+              onChange={(e) => {
+                setCurrentInput(e.target.value);
+                setValidationError(null);
+              }}
               placeholder={step.placeholder}
-              className="w-full min-h-[120px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 resize-none"
+              className={`w-full min-h-[120px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
+                validationError 
+                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
+                  : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+              }`}
               autoFocus
             />
           )}
 
-          {error && (
+          {(error || validationError) && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-sm">{error}</p>
+              <p className="text-red-600 text-sm">{validationError || error}</p>
             </div>
           )}
         </div>
