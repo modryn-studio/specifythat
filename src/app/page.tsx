@@ -5,17 +5,18 @@ import FeedbackButton from '@/components/FeedbackButton';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-gray-100 bg-white/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-5">
-          <div className="flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-5">
+          <div className="flex flex-col sm:flex-row items-center sm:justify-between justify-center gap-3 sm:gap-4">
             <Image 
               src="/specifythat-logo.png" 
               alt="SpecifyThat" 
               width={144} 
               height={32}
-              style={{ height: '32px', width: 'auto' }}
+              style={{ height: '28px', width: 'auto' }}
+              className="sm:h-8"
               priority
             />
             <HeaderEmailCapture />
@@ -27,7 +28,7 @@ export default function Home() {
       <main className="max-w-5xl mx-auto px-4 py-20 md:py-32">
         <div className="text-center space-y-10">
           <div className="space-y-6">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0A2540] tracking-tight leading-[1.15]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0A2540] tracking-tight leading-[1.15]">
               Turn Ideas Into
               <span className="block bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] bg-clip-text text-transparent mt-2 pb-2 pr-1"> Build-Ready Specs</span>
             </h1>
