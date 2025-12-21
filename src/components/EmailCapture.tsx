@@ -49,20 +49,20 @@ export default function EmailCapture() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white/60 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-lg">
+      <div className="bg-dark-800/50 backdrop-blur-sm border border-dark-700/50 rounded-2xl p-6 shadow-lg">
         <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-[#0A2540] mb-2">
+          <h3 className="text-lg font-bold text-white mb-2">
             Get notified about new features
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-dark-300">
             Be the first to know when we ship something awesome
           </p>
         </div>
 
         {status === 'success' ? (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <PartyPopper className="w-6 h-6 text-green-600 mx-auto mb-2" />
-            <p className="text-green-700 font-medium">{message}</p>
+          <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4 text-center">
+            <PartyPopper className="w-6 h-6 text-green-400 mx-auto mb-2" />
+            <p className="text-green-400 font-medium">{message}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -75,25 +75,25 @@ export default function EmailCapture() {
                   if (status === 'error') setStatus('idle');
                 }}
                 placeholder="your@email.com"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+                className="flex-1 px-4 py-3 bg-dark-900 border border-dark-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent text-white placeholder-dark-400"
                 disabled={status === 'loading'}
               />
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="px-6 py-3 bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="px-6 py-3 bg-accent-600 hover:bg-accent-500 text-white rounded-xl font-semibold shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {status === 'loading' ? 'Signing up...' : 'Notify Me'}
               </button>
             </div>
             
             {status === 'error' && (
-              <p className="text-red-600 text-sm text-center">{message}</p>
+              <p className="text-red-400 text-sm text-center">{message}</p>
             )}
           </form>
         )}
 
-        <p className="text-xs text-gray-500 text-center mt-3">
+        <p className="text-xs text-dark-400 text-center mt-3">
           No spam, ever. Unsubscribe anytime.
         </p>
       </div>

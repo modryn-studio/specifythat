@@ -50,21 +50,21 @@ export default function HeaderEmailCapture() {
 
   if (status === 'success') {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
-        <Bell className="w-4 h-4 text-green-600" />
-        <span className="text-sm font-medium text-green-700">You're on the list!</span>
+      <div className="flex items-center gap-2 px-3 py-2 bg-green-500/20 border border-green-500/30 rounded-lg">
+        <Bell className="w-4 h-4 text-green-400" />
+        <span className="text-sm font-medium text-green-400">You're on the list!</span>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <div className="flex items-center gap-2 text-sm text-gray-600 sm:hidden mb-1">
+      <div className="flex items-center gap-2 text-sm text-dark-300 sm:hidden mb-1">
         <Bell className="w-4 h-4" />
         <span className="font-medium">Get updates:</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600">
+        <div className="hidden sm:flex items-center gap-2 text-sm text-dark-300">
           <Bell className="w-4 h-4" />
           <span className="font-medium">Get updates:</span>
         </div>
@@ -73,17 +73,17 @@ export default function HeaderEmailCapture() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
-          className={`px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          className={`px-3 py-2 text-sm bg-dark-800 border rounded-lg text-white placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent ${
             status === 'error' 
-              ? 'border-red-300 focus:ring-red-500' 
-              : 'border-gray-300'
+              ? 'border-red-500/50 focus:ring-red-500' 
+              : 'border-dark-600'
           } w-44 flex-shrink-0`}
           disabled={status === 'loading'}
         />
         <button
           type="submit"
           disabled={status === 'loading' || !email}
-          className="px-4 py-2 bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white text-sm font-semibold rounded-lg hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+          className="px-4 py-2 bg-accent-600 hover:bg-accent-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
         >
           {status === 'loading' ? 'Saving...' : 'Notify Me'}
         </button>

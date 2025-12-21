@@ -219,10 +219,10 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
 
     return (
       <div className="w-full max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <div className="bg-dark-800/50 rounded-2xl shadow-lg border border-dark-700/50 p-8">
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold text-[#0A2540] mb-2">Creating Your Project Description</h2>
-            <p className="text-gray-500">Based on your answers, we're crafting a clear description.</p>
+            <h2 className="text-xl font-bold text-white mb-2">Creating Your Project Description</h2>
+            <p className="text-dark-400">Based on your answers, we're crafting a clear description.</p>
           </div>
           <AnalysisProgress 
             isActive={isGenerating} 
@@ -238,25 +238,25 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
   if (generatedDescription) {
     return (
       <div className="w-full max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="bg-dark-800/50 rounded-2xl shadow-lg border border-dark-700/50 overflow-hidden">
           {/* Header */}
-          <div className="px-8 pt-6 pb-4 border-b border-gray-100">
+          <div className="px-8 pt-6 pb-4 border-b border-dark-700">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-[#0A2540]">Here&apos;s your project description</h2>
-                <p className="text-sm text-gray-500">Review and edit if needed, then continue</p>
+                <h2 className="text-lg font-semibold text-white">Here&apos;s your project description</h2>
+                <p className="text-sm text-dark-400">Review and edit if needed, then continue</p>
               </div>
             </div>
           </div>
 
           {/* Editable description */}
           <div className="p-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-dark-300 mb-2">
               Your Project Description
             </label>
             <textarea
@@ -265,18 +265,18 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                 setEditedDescription(e.target.value);
                 setValidationError(null);
               }}
-              className={`w-full min-h-[160px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
+              className={`w-full min-h-[160px] p-4 text-base text-white bg-dark-900 border-2 rounded-xl focus:bg-dark-900 focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
                 validationError 
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
-                  : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+                  ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/10' 
+                  : 'border-dark-600 focus:border-green-500 focus:ring-green-500/10'
               }`}
             />
-            <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+            <p className="text-xs text-dark-400 mt-2 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> AI-generated based on your answers. Feel free to tweak it.
             </p>
             {validationError && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-red-600 text-sm">{validationError}</p>
+              <div className="mt-3 p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
+                <p className="text-red-400 text-sm">{validationError}</p>
               </div>
             )}
           </div>
@@ -285,7 +285,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
           <div className="px-8 pb-8 flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#0A2540] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-dark-300 hover:text-white transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -296,7 +296,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
             <button
               onClick={handleAcceptDescription}
               disabled={!editedDescription.trim()}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-200"
+              className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/25 hover:shadow-green-600/40 transition-all duration-200"
             >
               Use This Description
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -311,35 +311,35 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+      <div className="bg-dark-800/50 rounded-2xl shadow-lg border border-dark-700/50 overflow-hidden">
         {/* Header */}
-        <div className="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div className="px-8 pt-6 pb-4 border-b border-dark-700">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-[#0A2540]">Let&apos;s discover your project</h2>
-              <p className="text-sm text-gray-500">Answer a few quick questions to shape your idea</p>
+              <h2 className="text-lg font-semibold text-white">Let&apos;s discover your project</h2>
+              <p className="text-sm text-dark-400">Answer a few quick questions to shape your idea</p>
             </div>
           </div>
           
           {/* Progress bar */}
-          <div className="w-full bg-gray-100 rounded-full h-2">
+          <div className="w-full bg-dark-700 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-accent-500 to-accent-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xs text-gray-400 mt-2">Step {currentStep + 1} of {IDEATION_STEPS.length}</p>
+          <p className="text-xs text-dark-400 mt-2">Step {currentStep + 1} of {IDEATION_STEPS.length}</p>
         </div>
 
         {/* Question */}
         <div className="p-8">
-          <h3 className="text-xl font-medium text-[#0A2540] mb-2">{step.question}</h3>
-          <p className="text-sm text-gray-500 mb-6">{step.helpText}</p>
+          <h3 className="text-xl font-medium text-white mb-2">{step.question}</h3>
+          <p className="text-sm text-dark-400 mb-6">{step.helpText}</p>
 
           {isCategoryStep ? (
             // Category selection UI
@@ -353,13 +353,13 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                     onClick={() => handleCategorySelect(category.id)}
                     className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
                       selectedCategory === category.id
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-accent-500 bg-accent-500/20 shadow-sm'
+                        : 'border-dark-600 hover:border-dark-500 hover:bg-dark-700/50'
                     }`}
                   >
                     <IconComponent className={`w-5 h-5 mb-1 flex-shrink-0 ${category.color}`} />
                     <span className={`text-sm font-medium block break-words leading-tight ${
-                      selectedCategory === category.id ? 'text-blue-700' : 'text-[#0A2540]'
+                      selectedCategory === category.id ? 'text-accent-400' : 'text-white'
                     }`}>
                       {category.label}
                     </span>
@@ -377,10 +377,10 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                     setValidationError(null);
                   }}
                   placeholder="Describe your category..."
-                  className={`w-full p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 ${
+                  className={`w-full p-4 text-base text-white bg-dark-900 border-2 rounded-xl focus:bg-dark-900 focus:outline-none focus:ring-4 transition-all duration-200 ${
                     validationError 
-                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
-                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+                      ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/10' 
+                      : 'border-dark-600 focus:border-accent-500 focus:ring-accent-500/10'
                   }`}
                   autoFocus
                 />
@@ -395,18 +395,18 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                 setValidationError(null);
               }}
               placeholder={step.placeholder}
-              className={`w-full min-h-[120px] p-4 text-base text-[#0A2540] bg-gray-50 border-2 rounded-xl focus:bg-white focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
+              className={`w-full min-h-[120px] p-4 text-base text-white bg-dark-900 border-2 rounded-xl focus:bg-dark-900 focus:outline-none focus:ring-4 transition-all duration-200 resize-none ${
                 validationError 
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10' 
-                  : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/10'
+                  ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/10' 
+                  : 'border-dark-600 focus:border-accent-500 focus:ring-accent-500/10'
               }`}
               autoFocus
             />
           )}
 
           {(error || validationError) && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-sm">{validationError || error}</p>
+            <div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
+              <p className="text-red-400 text-sm">{validationError || error}</p>
             </div>
           )}
         </div>
@@ -415,7 +415,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
         <div className="px-4 sm:px-8 pb-6 sm:pb-8 flex items-center justify-between gap-2">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-[#0A2540] transition-colors flex-shrink-0"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-dark-300 hover:text-white transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -427,7 +427,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
             {hasAnyAnswer && (
               <button
                 onClick={handleSkip}
-                className="px-3 sm:px-4 py-2 text-gray-500 hover:text-gray-700 text-sm transition-colors"
+                className="px-3 sm:px-4 py-2 text-dark-400 hover:text-dark-200 text-sm transition-colors"
               >
                 {isLastStep ? 'Generate now' : 'Skip'}
               </button>
@@ -438,7 +438,7 @@ export function IdeationFlow({ onComplete, onCancel }: IdeationFlowProps) {
                 ? (!selectedCategory || (selectedCategory === 'other' && !currentInput.trim()))
                 : !currentInput.trim()
               }
-              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
+              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-accent-600 hover:bg-accent-500 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40 transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
             >
               <span className="hidden sm:inline">{isLastStep ? 'Generate Description' : 'Next'}</span>
               <span className="sm:hidden">{isLastStep ? 'Generate' : 'Next'}</span>

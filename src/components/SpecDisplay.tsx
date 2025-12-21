@@ -66,13 +66,13 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
   }, [dropdownOpen]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-[#0A2540] flex items-center gap-2">
-            Your Spec is Ready! <PartyPopper className="w-8 h-8 text-purple-600" />
+          <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-2">
+            Your Spec is Ready! <PartyPopper className="w-8 h-8 text-accent-400" />
           </h1>
-          <p className="text-gray-600 mt-2 text-lg">
+          <p className="text-dark-300 mt-2 text-lg">
             Copy it and paste into ChatGPT, Claude, or your favorite AI to start building.
           </p>
         </div>
@@ -84,8 +84,8 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
                 onClick={handleCopy}
                 className={`px-6 py-3 rounded-l-xl font-bold transition-all ${
                   copied
-                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                    : 'bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white hover:shadow-xl hover:shadow-blue-500/30'
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                    : 'bg-accent-600 hover:bg-accent-500 text-white shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40'
                 }`}
               >
                 {copied ? (
@@ -98,8 +98,8 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className={`px-3 py-3 rounded-r-xl font-bold transition-all border-l border-white/20 ${
                   copied
-                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white'
-                    : 'bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white hover:shadow-xl hover:shadow-blue-500/30'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-accent-600 hover:bg-accent-500 text-white'
                 }`}
                 aria-label="More options"
               >
@@ -120,10 +120,10 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
             </div>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white shadow-2xl border border-gray-200 py-2 z-10">
+              <div className="absolute right-0 mt-2 w-64 rounded-xl bg-dark-800 shadow-2xl border border-dark-700 py-2 z-10">
                 <button
                   onClick={handleDownload}
-                  className="w-full text-left px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-5 py-3 text-sm font-medium text-dark-200 hover:bg-dark-700 hover:text-white transition-colors"
                 >
                   Download as Markdown
                 </button>
@@ -133,16 +133,16 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
           
           <button
             onClick={onStartOver}
-            className="px-6 py-3 text-[#0A2540] border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-bold"
+            className="px-6 py-3 text-dark-300 border-2 border-dark-600 rounded-xl hover:bg-dark-700 hover:border-dark-500 transition-all font-bold"
           >
             Start Over
           </button>
         </div>
       </div>
 
-      <div className="bg-[#0A2540] rounded-2xl overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-3 bg-[#061829] border-b border-gray-700">
-          <span className="text-sm text-gray-300 font-mono font-medium">project-spec.md</span>
+      <div className="bg-dark-800 rounded-2xl overflow-hidden border border-dark-700">
+        <div className="flex items-center justify-between px-6 py-3 bg-dark-900 border-b border-dark-700">
+          <span className="text-sm text-dark-400 font-mono font-medium">project-spec.md</span>
           <button
             onClick={handleCopy}
             className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
@@ -162,11 +162,11 @@ export function SpecDisplay({ spec, onStartOver, projectName = 'project' }: Spec
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 md:p-8">
-        <h3 className="font-bold text-[#0A2540] mb-4 text-xl flex items-center gap-2">
-          <Lightbulb className="w-6 h-6 text-yellow-600" /> What's Next?
+      <div className="bg-dark-800/50 border border-dark-700 rounded-2xl p-6 md:p-8">
+        <h3 className="font-bold text-white mb-4 text-xl flex items-center gap-2">
+          <Lightbulb className="w-6 h-6 text-yellow-400" /> What's Next?
         </h3>
-        <ol className="text-gray-700 space-y-2 list-decimal list-inside text-base font-medium">
+        <ol className="text-dark-300 space-y-2 list-decimal list-inside text-base font-medium">
           <li>Copy the spec above</li>
           <li>Paste it into ChatGPT, Claude, or Cursor</li>
           <li>Say: "Help me build this following the spec exactly"</li>

@@ -89,6 +89,16 @@ export interface InterviewSessionExtended extends InterviewSession {
   allUnits?: BuildableUnit[];
 }
 
+// Auto-generation types
+export interface GeneratedAnswer {
+  questionId: number;
+  questionText: string;
+  answer: string;
+  section?: string;
+  isAIGenerated?: boolean;
+  isComplete?: boolean;
+}
+
 // Ideation Mode Types (for Q2 "I don't know")
 export interface IdeationAnswers {
   problemFrustration?: string;

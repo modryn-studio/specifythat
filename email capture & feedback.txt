@@ -1,0 +1,12 @@
+History:
+created first app - SpecifyThat
+created GA4, added email capture, added feedback mechanism
+	- email capture: collect form url, entry., form url (change to formResponse)
+	- feedback : use FormSubmit
+
+
+Form URL: https://forms.gle/k1kEsAne1cJtNw2F6
+
+Entry ID: 1826763262
+
+Form Action URL: https://docs.google.com/forms/u/0/d/1nalHADY0DobC-MA6hzHJJRIU5dKUnhqWiH8qbFB2N_M/formResponse

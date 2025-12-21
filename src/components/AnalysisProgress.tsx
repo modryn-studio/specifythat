@@ -74,19 +74,19 @@ export function AnalysisProgress({
       {/* Main progress bar */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-bold text-[#0A2540]">{title}</span>
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-sm font-bold text-white">{title}</span>
+          <span className="text-sm font-medium text-dark-400">
             {Math.round(overallProgress)}%
           </span>
         </div>
         
         {subtitle && (
-          <p className="text-sm text-gray-500 -mt-1">{subtitle}</p>
+          <p className="text-sm text-dark-400 -mt-1">{subtitle}</p>
         )}
         
-        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden shadow-inner">
+        <div className="w-full bg-dark-700 rounded-full h-3 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-[#1E4D8B] via-[#3B82F6] to-[#60A5FA] h-3 rounded-full transition-all duration-300 ease-out relative"
+            className="bg-gradient-to-r from-accent-600 via-accent-500 to-accent-400 h-3 rounded-full transition-all duration-300 ease-out relative"
             style={{ width: `${overallProgress}%` }}
           >
             {/* Animated shimmer effect */}
@@ -113,10 +113,10 @@ export function AnalysisProgress({
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
                   isComplete
-                    ? 'bg-emerald-500'
+                    ? 'bg-green-500'
                     : isCurrent
-                    ? 'bg-[#3B82F6] animate-pulse'
-                    : 'bg-gray-200'
+                    ? 'bg-accent-500 animate-pulse'
+                    : 'bg-dark-700'
                 }`}
               >
                 {isComplete ? (
@@ -126,7 +126,7 @@ export function AnalysisProgress({
                 ) : isCurrent ? (
                   <div className="w-2 h-2 bg-white rounded-full" />
                 ) : (
-                  <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                  <div className="w-2 h-2 bg-dark-500 rounded-full" />
                 )}
               </div>
 
@@ -134,10 +134,10 @@ export function AnalysisProgress({
               <span
                 className={`text-sm font-medium transition-colors duration-300 ${
                   isComplete
-                    ? 'text-emerald-600'
+                    ? 'text-green-400'
                     : isCurrent
-                    ? 'text-[#0A2540]'
-                    : 'text-gray-400'
+                    ? 'text-white'
+                    : 'text-dark-500'
                 }`}
               >
                 {stage.label}

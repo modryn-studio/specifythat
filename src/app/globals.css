@@ -1,92 +1,223 @@
 @import "tailwindcss";
 
-:root {
-  /* Brand Colors - Based on Logo */
-  --navy-primary: #0A2540;
-  --navy-deep: #061829;
-  --blue-accent: #1E4D8B;
-  --blue-bright: #3B82F6;
-  --purple-ai: #7C3AED;
-  --emerald: #059669;
-  --emerald-light: #10B981;
-  
-  /* Neutrals */
-  --gray-50: #FAFAFA;
-  --gray-100: #F5F5F5;
-  --gray-200: #E5E5E5;
-  --gray-300: #D4D4D4;
-  --gray-600: #525252;
-  --gray-700: #404040;
-  --gray-900: #171717;
-  
-  /* Semantic */
-  --background: #ffffff;
-  --foreground: var(--navy-primary);
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #202123;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #565869;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: #fff;
+}
+
+/* Smooth focus outline */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: none;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: #202123;
+  --color-foreground: #ffffff;
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   
-  /* Custom colors for Tailwind */
-  --color-navy-primary: var(--navy-primary);
-  --color-navy-deep: var(--navy-deep);
-  --color-blue-accent: var(--blue-accent);
-  --color-blue-bright: var(--blue-bright);
-  --color-purple-ai: var(--purple-ai);
-  --color-emerald: var(--emerald);
-  --color-emerald-light: var(--emerald-light);
+  /* V2 Dark Theme Colors */
+  --color-dark-50: #f7f7f8;
+  --color-dark-100: #ececf1;
+  --color-dark-200: #d9d9e3;
+  --color-dark-300: #c5c5d2;
+  --color-dark-400: #acacbe;
+  --color-dark-500: #8e8ea0;
+  --color-dark-600: #565869;
+  --color-dark-700: #40414f;
+  --color-dark-800: #343541;
+  --color-dark-900: #202123;
+  --color-dark-950: #0d0d0f;
+  
+  /* V2 Accent (Indigo) Colors */
+  --color-accent-50: #eef2ff;
+  --color-accent-100: #e0e7ff;
+  --color-accent-200: #c7d2fe;
+  --color-accent-300: #a5b4fc;
+  --color-accent-400: #818cf8;
+  --color-accent-500: #6366f1;
+  --color-accent-600: #4f46e5;
+  --color-accent-700: #4338ca;
+  --color-accent-800: #3730a3;
+  --color-accent-900: #312e81;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+  background: var(--color-dark-900);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-feature-settings: 'kern' 1, 'liga' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography Enhancements */
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #a5b4fc 50%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shimmer effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+.glow-sm {
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Button pulse animation */
+@keyframes button-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+}
+
+.btn-pulse {
+  animation: button-pulse 2s infinite;
+}
+
+/* Shimmer keyframe */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide up animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .btn-pulse {
+    animation: none;
+  }
+  
+  .shimmer {
+    animation: none;
+  }
+}
+
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.2;
 }
 
-/* Smooth transitions */
-* {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Pointer cursor for all clickable elements */
+/* Cursor styles */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),
 a[href] {
   cursor: pointer;
 }
 
-/* Not-allowed cursor for disabled elements */
 button:disabled,
 [role="button"][aria-disabled="true"],
 .disabled {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
-/* Shimmer animation for progress bars */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.5s infinite;
+/* Textarea */
+textarea {
+  resize: vertical;
 }

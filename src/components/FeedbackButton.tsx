@@ -82,7 +82,7 @@ export default function FeedbackButton() {
       {/* Floating Feedback Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white px-5 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex items-center gap-2 z-50"
+        className="fixed bottom-6 right-6 bg-accent-600 hover:bg-accent-500 text-white px-5 py-3 rounded-full font-semibold shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40 hover:-translate-y-1 transition-all duration-200 flex items-center gap-2 z-50"
         aria-label="Send feedback"
       >
         <svg 
@@ -104,11 +104,11 @@ export default function FeedbackButton() {
 
       {/* Feedback Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-dark-800 rounded-2xl shadow-2xl max-w-md w-full p-6 relative border border-dark-700">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-dark-400 hover:text-dark-200 transition-colors"
               aria-label="Close"
             >
               <svg 
@@ -123,17 +123,17 @@ export default function FeedbackButton() {
               </svg>
             </button>
 
-            <h3 className="text-2xl font-bold text-[#0A2540] mb-2">
+            <h3 className="text-2xl font-bold text-white mb-2">
               Send Feedback
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-dark-300 mb-6">
               Found a bug? Have an idea? Let us know!
             </p>
 
             {status === 'sent' ? (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-3" />
-                <p className="text-green-700 font-semibold">Thanks for your feedback!</p>
+              <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-6 text-center">
+                <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-3" />
+                <p className="text-green-400 font-semibold">Thanks for your feedback!</p>
               </div>
             ) : (
               <>
@@ -143,7 +143,7 @@ export default function FeedbackButton() {
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder="What's on your mind?"
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 bg-dark-900 border border-dark-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent resize-none text-white placeholder-dark-400"
                     disabled={status === 'sending'}
                   />
                   
@@ -151,14 +151,14 @@ export default function FeedbackButton() {
                     <button
                       type="submit"
                       disabled={status === 'sending' || !feedback.trim()}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-[#1E4D8B] to-[#3B82F6] text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-6 py-3 bg-accent-600 hover:bg-accent-500 text-white rounded-xl font-semibold shadow-lg shadow-accent-600/25 hover:shadow-accent-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {status === 'sending' ? 'Sending...' : 'Send Feedback'}
                     </button>
                     <button
                       type="button"
                       onClick={handleMailto}
-                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200"
+                      className="px-6 py-3 border-2 border-dark-600 text-dark-300 rounded-xl font-semibold hover:border-dark-500 hover:bg-dark-700 transition-all duration-200"
                       title="Send via email"
                     >
                       <svg 
@@ -179,11 +179,11 @@ export default function FeedbackButton() {
                   </div>
                 </form>
 
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-xs text-dark-400 text-center mt-4">
                   Or email us directly at{' '}
                   <a 
                     href="mailto:luke@modrynstudio.com" 
-                    className="text-blue-600 hover:underline"
+                    className="text-accent-400 hover:underline"
                   >
                     luke@modrynstudio.com
                   </a>
