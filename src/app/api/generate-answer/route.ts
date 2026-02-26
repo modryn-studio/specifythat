@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { GenerateAnswerRequest } from '@/lib/types';
 import { questions } from '@/lib/questions';
 import { isGibberishInput } from '@/lib/sanitize';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
@@ -62,27 +62,22 @@ The user said: "${userInput}"
 
 Provide a high-quality answer that they can use directly in their spec. Be specific and actionable.`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+    const message = await openai.chat.completions.create({
+      model: 'gpt-5-mini',
       max_tokens: 1024,
       messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
-      system: systemPrompt,
     });
 
-    // Extract text from response
-    const textContent = message.content.find(block => block.type === 'text');
-    const answer = textContent ? textContent.text : 'Unable to generate answer.';
+    const answer = message.choices[0].message.content ?? 'Unable to generate answer.';
 
     return NextResponse.json({ answer });
   } catch (error) {
     console.error('Error generating answer:', error);
-    
-    if (error instanceof Anthropic.APIError) {
+
+    if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
         return NextResponse.json(
           { error: 'Invalid API key. Please check your configuration.' },
@@ -96,7 +91,7 @@ Provide a high-quality answer that they can use directly in their spec. Be speci
         );
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to generate answer. Please try again.' },
       { status: 500 }

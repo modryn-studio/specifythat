@@ -1,13 +1,13 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 import { GenerateProjectDescriptionRequest, IdeationAnswers } from '@/lib/types';
 import { isGibberishInput } from '@/lib/sanitize';
 
-const anthropic = new Anthropic();
+const openai = new OpenAI();
 
 function buildIdeationPrompt(answers: IdeationAnswers): string {
   const parts: string[] = [];
-  
+
   if (answers.problemFrustration) {
     parts.push(`Problem/Frustration: ${answers.problemFrustration}`);
   }
@@ -66,27 +66,22 @@ export async function POST(request: Request) {
 
     const prompt = buildIdeationPrompt(ideationAnswers);
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-5-mini',
       max_tokens: 500,
       messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
+        { role: 'user', content: prompt },
       ],
     });
 
-    // Extract text from response
-    const textContent = response.content.find(block => block.type === 'text');
-    if (!textContent || textContent.type !== 'text') {
+    const generatedText = response.choices[0].message.content?.trim();
+
+    if (!generatedText) {
       return NextResponse.json(
         { error: 'Failed to generate project description' },
         { status: 500 }
       );
     }
-
-    const generatedText = textContent.text.trim();
 
     return NextResponse.json({
       projectDescription: generatedText,

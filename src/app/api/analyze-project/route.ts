@@ -1,52 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { AnalyzeProjectRequest, AnalysisResult } from '@/lib/types';
 import { isGibberishInput } from '@/lib/sanitize';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Tool definition for structured output
-const analyzeProjectTool: Anthropic.Messages.Tool = {
-  name: 'analyze_project',
-  description: 'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
-  input_schema: {
-    type: 'object' as const,
-    properties: {
-      type: {
-        type: 'string',
-        enum: ['single', 'multiple'],
-        description: 'Whether this is a single buildable unit or multiple buildable units',
-      },
-      summary: {
-        type: 'string',
-        description: 'For single units: A condensed 1-2 sentence description of what the project does and who it is for. Required when type is "single".',
-      },
-      units: {
-        type: 'array',
-        description: 'For multiple units: An array of 3-6 distinct buildable units. Required when type is "multiple".',
-        items: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'number',
-              description: 'Sequential ID starting from 1',
+const analyzeProjectTool: OpenAI.Chat.ChatCompletionTool = {
+  type: 'function',
+  function: {
+    name: 'analyze_project',
+    description: 'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
+    parameters: {
+      type: 'object',
+      properties: {
+        type: {
+          type: 'string',
+          enum: ['single', 'multiple'],
+          description: 'Whether this is a single buildable unit or multiple buildable units',
+        },
+        summary: {
+          type: 'string',
+          description: 'For single units: A condensed 1-2 sentence description of what the project does and who it is for. Required when type is "single".',
+        },
+        units: {
+          type: 'array',
+          description: 'For multiple units: An array of 3-6 distinct buildable units. Required when type is "multiple".',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'number',
+                description: 'Sequential ID starting from 1',
+              },
+              name: {
+                type: 'string',
+                description: 'Short name for the unit (3-6 words)',
+              },
+              description: {
+                type: 'string',
+                description: 'A 1-2 sentence description of this buildable unit',
+              },
             },
-            name: {
-              type: 'string',
-              description: 'Short name for the unit (3-6 words)',
-            },
-            description: {
-              type: 'string',
-              description: 'A 1-2 sentence description of this buildable unit',
-            },
+            required: ['id', 'name', 'description'],
           },
-          required: ['id', 'name', 'description'],
         },
       },
+      required: ['type'],
     },
-    required: ['type'],
   },
 };
 
@@ -68,7 +70,7 @@ function buildAnalysisPrompt(userInput: string): string {
 
 **Your Task:**
 
-Analyze the following project description and use the analyze_project tool to return your analysis.
+Analyze the following project description and use the analyze_project function to return your analysis.
 
 <user_project_description>
 ${userInput}
@@ -98,7 +100,7 @@ ${userInput}
 - If the description lists 3+ distinct systems/features or uses words like "and", "also", "plus" to connect major features, consider MULTIPLE
 - When in doubt, lean toward SINGLE (users can always add more detail)
 
-Use the analyze_project tool now with your analysis.`;
+Call the analyze_project function now with your analysis.`;
 }
 
 function isClearlySimple(input: string): boolean {
@@ -111,7 +113,7 @@ function isClearlySimple(input: string): boolean {
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
     const body: AnalyzeProjectRequest = await request.json();
     const { projectDescription, attachedDocContent } = body;
@@ -130,7 +132,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Only check for gibberish if user typed something (not when they just attached a doc)
-    // If a document is attached, trust its content
     const userTypedText = (projectDescription || '').trim();
     if (userTypedText && !attachedDocContent && isGibberishInput(userTypedText)) {
       return NextResponse.json(
@@ -142,34 +143,27 @@ export async function POST(request: NextRequest) {
     console.log('[AI Analysis] Input length:', fullInput.length);
     console.log('[AI Analysis] First 200 chars:', fullInput.slice(0, 200));
 
-    // Call Claude API with tool use for structured output
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+    const message = await openai.chat.completions.create({
+      model: 'gpt-5-mini',
       max_tokens: 2000,
       tools: [analyzeProjectTool],
-      tool_choice: { type: 'tool', name: 'analyze_project' },
+      tool_choice: { type: 'function', function: { name: 'analyze_project' } },
       messages: [
-        {
-          role: 'user',
-          content: buildAnalysisPrompt(fullInput),
-        },
+        { role: 'user', content: buildAnalysisPrompt(fullInput) },
       ],
     });
 
     const duration = Date.now() - startTime;
     console.log(`[AI Analysis] API call took ${duration}ms`);
 
-    // Extract tool use result
-    const toolUseBlock = message.content.find(
-      (block): block is Anthropic.Messages.ToolUseBlock => block.type === 'tool_use'
-    );
+    const toolCall = message.choices[0].message.tool_calls?.[0];
 
-    if (!toolUseBlock) {
-      console.error('[AI Analysis] No tool use block in response');
+    if (!toolCall) {
+      console.error('[AI Analysis] No tool call in response');
       throw new Error('AI did not return structured analysis');
     }
 
-    const result = toolUseBlock.input as AnalysisResult;
+    const result = JSON.parse(toolCall.function.arguments) as AnalysisResult;
 
     // Validate the result
     if (result.type === 'single') {
@@ -213,8 +207,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // For complex inputs, return error
-    if (error instanceof Anthropic.APIError) {
+    if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
         return NextResponse.json(
           { error: 'Invalid API key. Please check your configuration.' },

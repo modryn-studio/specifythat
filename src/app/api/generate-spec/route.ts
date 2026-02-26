@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { GenerateSpecRequest } from '@/lib/types';
 import { buildSpecFromAnswers } from '@/lib/specTemplate';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     // First, build the base spec from template
     const baseSpec = buildSpecFromAnswers(answers);
 
-    // Then, use Claude to polish and enhance it
+    // Then, use GPT to polish and enhance it
     const systemPrompt = `You are an expert at writing clear, actionable project specifications.
 Your task is to take a draft project spec and polish it into a clean, professional document.
 
@@ -43,27 +43,22 @@ ${baseSpec}
 
 Return the polished spec in markdown format. Keep it concise and actionable.`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+    const message = await openai.chat.completions.create({
+      model: 'gpt-5-mini',
       max_tokens: 4096,
       messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
-      system: systemPrompt,
     });
 
-    // Extract text from response
-    const textContent = message.content.find(block => block.type === 'text');
-    const spec = textContent ? textContent.text : baseSpec;
+    const spec = message.choices[0].message.content ?? baseSpec;
 
     return NextResponse.json({ spec });
   } catch (error) {
     console.error('Error generating spec:', error);
-    
-    if (error instanceof Anthropic.APIError) {
+
+    if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
         return NextResponse.json(
           { error: 'Invalid API key. Please check your configuration.' },
@@ -77,7 +72,7 @@ Return the polished spec in markdown format. Keep it concise and actionable.`;
         );
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to generate spec. Please try again.' },
       { status: 500 }
