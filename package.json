@@ -1,6 +1,7 @@
 {
   "name": "specifythat",
   "version": "0.1.0",
+  "description": "Turn a vague idea into a build-ready spec in under 60 seconds.",
   "private": true,
   "scripts": {
     "dev": "next dev",

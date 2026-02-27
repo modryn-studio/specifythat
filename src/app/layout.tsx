@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SiteSchema } from '@/components/site-schema';
 import { site } from '@/config/site';
@@ -24,11 +25,17 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: site.ogTitle,
     description: site.ogDescription,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: site.ogTitle }],
   },
   twitter: {
     card: 'summary_large_image',
     title: site.ogTitle,
     description: site.ogDescription,
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
   },
   robots: {
     index: true,
@@ -41,8 +48,23 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+            </Script>
+          </>
+        )}
+      </head>
       <body className={inter.className}>
         <SiteSchema />
         {children}
