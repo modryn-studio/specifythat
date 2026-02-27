@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SiteSchema } from '@/components/site-schema';
 import { SiteNav } from '@/components/site-nav';
+import FeedbackWidget from '@/components/feedback-widget';
 import { site } from '@/config/site';
 import './globals.css';
 
@@ -79,6 +80,7 @@ export default function RootLayout({
         <SiteSchema />
         <SiteNav />
         {children}
+        <FeedbackWidget />
         <Analytics />
       </body>
     </html>

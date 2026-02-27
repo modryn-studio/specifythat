@@ -47,7 +47,6 @@ export default function FeedbackWidget() {
           type: 'feedback',
           message: message.trim(),
           email: email.trim() || undefined,
-          // Silently include the page — useful for routing feedback without extra UI
           page: window.location.pathname,
         }),
       });
@@ -69,25 +68,42 @@ export default function FeedbackWidget() {
   const isOpen = state === 'open' || state === 'submitting' || state === 'done';
 
   return (
-    <div className="fixed right-6 bottom-6 z-50 flex flex-col items-end gap-3">
+    <div style={{ position: 'fixed', right: '24px', bottom: '24px', zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
       {/* Card */}
       {isOpen && (
-        <div className="border-border bg-background w-72 border-2 shadow-xl">
-          <div className="border-border flex items-center justify-between border-b px-4 py-3">
-            <span className="font-mono text-xs font-bold tracking-widest uppercase">
+        <div
+          style={{
+            width: '288px',
+            border: '1px solid var(--color-border)',
+            background: 'var(--color-surface)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              borderBottom: '1px solid var(--color-border)',
+            }}
+          >
+            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'var(--color-text)' }}>
               Feedback
             </span>
             <button
               onClick={close}
-              className="text-muted-foreground hover:text-foreground -mr-1 p-1 transition-colors"
               aria-label="Close"
+              style={{ padding: '4px', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
             >
               <X size={14} />
             </button>
           </div>
-          <div className="p-4">
+          <div style={{ padding: '16px' }}>
             {state === 'done' ? (
-              <p className="font-mono text-sm">Thanks. Noted. 👊</p>
+              <p style={{ fontSize: '14px', color: 'var(--color-text)' }}>Thanks. Noted. 👊</p>
             ) : (
               <>
                 <textarea
@@ -95,10 +111,23 @@ export default function FeedbackWidget() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="What are you building? What's broken? What's missing?"
+                  placeholder="What's broken? What's missing? What do you want?"
                   disabled={state === 'submitting'}
                   rows={4}
-                  className="border-border placeholder:text-muted-foreground focus:border-amber w-full resize-none border bg-transparent p-3 font-mono text-sm outline-none transition-colors disabled:opacity-50"
+                  style={{
+                    width: '100%',
+                    resize: 'none',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '8px',
+                    background: 'transparent',
+                    padding: '12px',
+                    fontSize: '13px',
+                    color: 'var(--color-text)',
+                    outline: 'none',
+                    opacity: state === 'submitting' ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                 />
                 <input
                   type="email"
@@ -107,14 +136,41 @@ export default function FeedbackWidget() {
                   onKeyDown={handleKeyDown}
                   placeholder="Email (optional — for a reply)"
                   disabled={state === 'submitting'}
-                  className="border-border placeholder:text-muted-foreground focus:border-amber mt-2 w-full border bg-transparent p-3 font-mono text-xs outline-none transition-colors disabled:opacity-50"
+                  style={{
+                    width: '100%',
+                    marginTop: '8px',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '8px',
+                    background: 'transparent',
+                    padding: '10px 12px',
+                    fontSize: '12px',
+                    color: 'var(--color-text)',
+                    outline: 'none',
+                    opacity: state === 'submitting' ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                 />
-                {error && <p className="text-destructive mt-2 font-mono text-xs">{error}</p>}
-                <div className="mt-3 flex justify-end">
+                {error && (
+                  <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--color-error)' }}>{error}</p>
+                )}
+                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
                   <button
                     onClick={handleSubmit}
                     disabled={!message.trim() || state === 'submitting'}
-                    className="bg-amber hover:bg-amber/90 disabled:bg-muted flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold text-white transition-colors disabled:cursor-not-allowed disabled:text-white/50"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 16px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#fff',
+                      background: !message.trim() || state === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-accent)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: !message.trim() || state === 'submitting' ? 'not-allowed' : 'pointer',
+                    }}
                   >
                     <Send size={12} />
                     {state === 'submitting' ? 'Sending...' : 'Send'}
@@ -129,8 +185,23 @@ export default function FeedbackWidget() {
       {/* Toggle button */}
       <button
         onClick={() => setState(isOpen ? 'idle' : 'open')}
-        className="bg-amber hover:bg-amber/90 flex items-center gap-2 px-4 py-2.5 font-mono text-xs font-bold text-white shadow-lg transition-colors"
         aria-label={isOpen ? 'Close feedback' : 'Open feedback'}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 16px',
+          fontSize: '12px',
+          fontWeight: 600,
+          color: '#fff',
+          background: 'var(--color-accent)',
+          border: 'none',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
       >
         <MessageSquare size={14} />
         Feedback

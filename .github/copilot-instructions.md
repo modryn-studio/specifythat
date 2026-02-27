@@ -14,7 +14,7 @@ Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat turns
 - CSS animations from `globals.css` — fade-in, fade-up, shimmer, dot-pulse (framer-motion removed in issue #6)
 - `zustand` — client-side state management with localStorage persistence (**not yet installed**)
 - `nanoid` — ID generation for specs and sessions (**not yet installed**)
-- `nodemailer` + `resend` — feedback email and newsletter contacts (**not yet installed**)
+- `nodemailer` + `resend` — feedback email and newsletter contacts
 
 ## Project Structure
 ```

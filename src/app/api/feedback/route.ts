@@ -26,7 +26,7 @@ function buildHtml(body: FeedbackBody): string {
   return `
     <div style="font-family: monospace; padding: 20px; max-width: 500px;">
       <h2 style="margin: 0 0 16px;">${heading}</h2>
-      <p><strong>Email:</strong> ${body.email}</p>
+      <p><strong>Email:</strong> ${body.email || '(not provided)'}</p>
       ${body.message ? `<p><strong>Message:</strong><br/>${body.message}</p>` : ''}
       ${body.page ? `<p><strong>Page:</strong> ${body.page}</p>` : ''}
       <hr style="margin: 16px 0; border: 1px solid #333;" />
@@ -48,11 +48,13 @@ export async function POST(req: Request): Promise<Response> {
       return log.end(ctx, Response.json({ error: 'Invalid type' }, { status: 400 }));
     }
 
-    // Validate email
+    // Validate email — required for newsletter, optional for feedback/bug
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!body.email || !emailRegex.test(body.email)) {
-      log.warn(ctx.reqId, 'Invalid email', { email: body.email });
-      return log.end(ctx, Response.json({ error: 'Invalid email' }, { status: 400 }));
+    const hasEmail = body.email && emailRegex.test(body.email);
+
+    if (body.type === 'newsletter' && !hasEmail) {
+      log.warn(ctx.reqId, 'Invalid email for newsletter', { email: body.email });
+      return log.end(ctx, Response.json({ error: 'Valid email required' }, { status: 400 }));
     }
 
     // Check env vars
@@ -73,8 +75,8 @@ export async function POST(req: Request): Promise<Response> {
 
     const subjectMap: Record<FeedbackType, string> = {
       newsletter: `📬 New signup: ${body.email}`,
-      feedback: `💬 Feedback from ${body.email}`,
-      bug: `🐛 Bug report from ${body.email}`,
+      feedback: `💬 Feedback${body.email ? ` from ${body.email}` : ''}`,
+      bug: `🐛 Bug report${body.email ? ` from ${body.email}` : ''}`,
     };
 
     await transporter.sendMail({
