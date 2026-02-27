@@ -11,29 +11,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="min-h-dvh flex flex-col" style={{ background: 'var(--color-bg)' }}>
-      {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: 'var(--color-border)' }}>
-        <span className="font-semibold text-sm tracking-tight" style={{ color: 'var(--color-text)' }}>
-          SpecifyThat
-        </span>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/specs"
-            className="text-sm transition-colors"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            My specs
-          </Link>
-          <Link
-            href="/interview"
-            className="text-sm px-4 py-1.5 rounded-md font-medium transition-colors"
-            style={{ background: 'var(--color-accent)', color: '#fff' }}
-          >
-            Start a spec
-          </Link>
-        </div>
-      </nav>
-
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center animate-fade-up">
         <p className="text-xs font-medium uppercase tracking-widest mb-6" style={{ color: 'var(--color-accent)' }}>

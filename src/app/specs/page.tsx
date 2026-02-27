@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Search, Trash2, FileText, ArrowLeft } from 'lucide-react';
+import { Download, Search, Trash2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useSpecsStore } from '@/stores/specs';
 import { SpecEntry } from '@/lib/types';
@@ -72,25 +72,15 @@ export default function SpecsPage() {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="p-2 rounded-lg border transition-colors"
-            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
-            aria-label="Back to home"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>
-              My specs
-            </h1>
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              {specs.length === 0
-                ? 'No specs yet'
-                : `${specs.length} spec${specs.length === 1 ? '' : 's'} saved locally`}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>
+            My specs
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            {specs.length === 0
+              ? 'No specs yet'
+              : `${specs.length} spec${specs.length === 1 ? '' : 's'} saved locally`}
+          </p>
         </div>
 
         {specs.length > 0 && (

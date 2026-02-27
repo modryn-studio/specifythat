@@ -691,16 +691,9 @@ export default function InterviewPage() {
 function Shell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <div
-      className="min-h-dvh flex flex-col items-center justify-center px-4 py-16"
+      className="min-h-[calc(100dvh-48px)] flex flex-col items-center justify-center px-4 py-16"
       style={{ background: 'var(--color-bg)' }}
     >
-      <Link
-        href="/"
-        className="fixed top-5 left-6 text-sm font-semibold"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
-        SpecifyThat
-      </Link>
       <div className={wide ? 'w-full max-w-2xl' : undefined}>{children}</div>
     </div>
   );

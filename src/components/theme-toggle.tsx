@@ -14,10 +14,6 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label="Toggle theme"
       className={className}
       style={{
-        position: 'fixed',
-        top: '20px',
-        right: '24px',
-        zIndex: 50,
         color: 'var(--color-text-muted)',
         background: 'none',
         border: 'none',

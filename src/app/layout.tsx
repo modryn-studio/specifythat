@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SiteSchema } from '@/components/site-schema';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { SiteNav } from '@/components/site-nav';
 import { site } from '@/config/site';
 import './globals.css';
 
@@ -77,7 +77,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <SiteSchema />
-        <ThemeToggle />
+        <SiteNav />
         {children}
         <Analytics />
       </body>
