@@ -9,12 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.18.2",
-    "lucide-react": "^0.561.0",
+    "lucide-react": "^0.575.0",
+    "nanoid": "^5.1.6",
     "next": "16.0.10",
     "openai": "^4.96.0",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "tailwind-merge": "^3.5.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
