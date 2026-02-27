@@ -1,28 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+﻿import OpenAI from 'openai';
 import { GenerateSpecRequest } from '@/lib/types';
 import { buildSpecFromAnswers } from '@/lib/specTemplate';
+import { createRouteLogger } from '@/lib/route-logger';
+import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
+
+const log = createRouteLogger('generate-spec');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(req: Request): Promise<Response> {
+  const ctx = log.begin();
+
   try {
-    const body: GenerateSpecRequest = await request.json();
+    const body: GenerateSpecRequest = await req.json();
     const { answers } = body;
 
+    log.info(ctx.reqId, 'Request received', { answerCount: answers?.length ?? 0 });
+
     if (!answers || answers.length === 0) {
-      return NextResponse.json(
-        { error: 'Answers are required' },
-        { status: 400 }
+      return log.end(ctx, Response.json({ error: 'Answers are required' }, { status: 400 }));
+    }
+
+    // Rate limit check  hard cap, this is the terminal step
+    const ip = getClientIP(req);
+    if (isRateLimited('generate-spec', ip, LIMITS['generate-spec'])) {
+      log.warn(ctx.reqId, 'Rate limited', { ip });
+      return log.end(
+        ctx,
+        Response.json(
+          { error: "You've used your free specs today. Get credits to keep going." },
+          { status: 429 }
+        )
       );
     }
 
-    // First, build the base spec from template
+    // Build base spec from template  no content logged
     const baseSpec = buildSpecFromAnswers(answers);
 
-    // Then, use GPT to polish and enhance it
     const systemPrompt = `You are an expert at writing clear, actionable project specifications.
 Your task is to take a draft project spec and polish it into a clean, professional document.
 
@@ -43,6 +59,7 @@ ${baseSpec}
 
 Return the polished spec in markdown format. Keep it concise and actionable.`;
 
+    // Proxy: forward to OpenAI  no prompt content logged
     const message = await openai.chat.completions.create({
       model: 'gpt-5-mini',
       max_tokens: 4096,
@@ -52,30 +69,25 @@ Return the polished spec in markdown format. Keep it concise and actionable.`;
       ],
     });
 
+    // Fall back to unpolished base spec if OpenAI returns nothing
     const spec = message.choices[0].message.content ?? baseSpec;
 
-    return NextResponse.json({ spec });
+    return log.end(ctx, Response.json({ spec }));
   } catch (error) {
-    console.error('Error generating spec:', error);
+    log.err(ctx, error);
 
     if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
-        return NextResponse.json(
-          { error: 'Invalid API key. Please check your configuration.' },
-          { status: 401 }
-        );
+        return Response.json({ error: 'Invalid API key.' }, { status: 401 });
       }
       if (error.status === 429) {
-        return NextResponse.json(
+        return Response.json(
           { error: 'Rate limit exceeded. Please try again in a moment.' },
           { status: 429 }
         );
       }
     }
 
-    return NextResponse.json(
-      { error: 'Failed to generate spec. Please try again.' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to generate spec. Please try again.' }, { status: 500 });
   }
 }

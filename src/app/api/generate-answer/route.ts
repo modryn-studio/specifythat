@@ -1,42 +1,68 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+﻿import OpenAI from 'openai';
 import { GenerateAnswerRequest } from '@/lib/types';
 import { questions } from '@/lib/questions';
 import { isGibberishInput } from '@/lib/sanitize';
+import { createRouteLogger } from '@/lib/route-logger';
+import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
+
+const log = createRouteLogger('generate-answer');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(req: Request): Promise<Response> {
+  const ctx = log.begin();
+
   try {
-    const body: GenerateAnswerRequest = await request.json();
+    const body: GenerateAnswerRequest = await req.json();
     const { question, conversationContext, userInput } = body;
 
+    // Validate structure  never log content
+    log.info(ctx.reqId, 'Request received', {
+      hasQuestion: Boolean(question),
+      contextLength: conversationContext?.length ?? 0,
+      hasUserInput: Boolean(userInput),
+    });
+
     if (!question) {
-      return NextResponse.json(
-        { error: 'Question is required' },
-        { status: 400 }
-      );
+      return log.end(ctx, Response.json({ error: 'Question is required' }, { status: 400 }));
     }
 
-    // Check for gibberish user input (if provided)
+    // Block gibberish before hitting OpenAI
     if (userInput && isGibberishInput(userInput)) {
-      return NextResponse.json(
-        { error: 'Please provide a meaningful response. Your input appears to be random characters.' },
-        { status: 400 }
+      return log.end(
+        ctx,
+        Response.json(
+          {
+            error:
+              'Please provide a meaningful response. Your input appears to be random characters.',
+          },
+          { status: 400 }
+        )
       );
     }
 
-    // Find the question config to get AI context
-    const questionConfig = questions.find(q => q.text === question);
-    const aiContext = questionConfig?.contextForAI || 'Provide a helpful answer based on best practices.';
+    // Rate limit check
+    const ip = getClientIP(req);
+    if (isRateLimited('generate-answer', ip, LIMITS['generate-answer'])) {
+      log.warn(ctx.reqId, 'Rate limited', { ip });
+      return log.end(
+        ctx,
+        Response.json({ error: 'Rate limit exceeded. Try again tomorrow.' }, { status: 429 })
+      );
+    }
 
-    // Build conversation history for context
+    // Look up AI context for this question
+    const questionConfig = questions.find((q) => q.text === question);
+    const aiContext =
+      questionConfig?.contextForAI || 'Provide a helpful answer based on best practices.';
+
+    // Build conversation context summary
     let conversationSummary = '';
     if (conversationContext && conversationContext.length > 0) {
       conversationSummary = conversationContext
-        .map(a => `Q: ${a.question}\nA: ${a.answer}`)
+        .map((a) => `Q: ${a.question}\nA: ${a.answer}`)
         .join('\n\n');
     }
 
@@ -62,6 +88,7 @@ The user said: "${userInput}"
 
 Provide a high-quality answer that they can use directly in their spec. Be specific and actionable.`;
 
+    // Proxy: forward to OpenAI  no prompt content logged
     const message = await openai.chat.completions.create({
       model: 'gpt-5-mini',
       max_tokens: 1024,
@@ -73,28 +100,22 @@ Provide a high-quality answer that they can use directly in their spec. Be speci
 
     const answer = message.choices[0].message.content ?? 'Unable to generate answer.';
 
-    return NextResponse.json({ answer });
+    return log.end(ctx, Response.json({ answer }));
   } catch (error) {
-    console.error('Error generating answer:', error);
+    log.err(ctx, error);
 
     if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
-        return NextResponse.json(
-          { error: 'Invalid API key. Please check your configuration.' },
-          { status: 401 }
-        );
+        return Response.json({ error: 'Invalid API key.' }, { status: 401 });
       }
       if (error.status === 429) {
-        return NextResponse.json(
+        return Response.json(
           { error: 'Rate limit exceeded. Please try again in a moment.' },
           { status: 429 }
         );
       }
     }
 
-    return NextResponse.json(
-      { error: 'Failed to generate answer. Please try again.' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to generate answer. Please try again.' }, { status: 500 });
   }
 }

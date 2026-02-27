@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+﻿import OpenAI from 'openai';
 import { AnalyzeProjectRequest, AnalysisResult } from '@/lib/types';
 import { isGibberishInput } from '@/lib/sanitize';
+import { createRouteLogger } from '@/lib/route-logger';
+import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
+
+const log = createRouteLogger('analyze-project');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,7 +14,8 @@ const analyzeProjectTool: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'analyze_project',
-    description: 'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
+    description:
+      'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
     parameters: {
       type: 'object',
       properties: {
@@ -22,22 +26,18 @@ const analyzeProjectTool: OpenAI.Chat.ChatCompletionTool = {
         },
         summary: {
           type: 'string',
-          description: 'For single units: A condensed 1-2 sentence description of what the project does and who it is for. Required when type is "single".',
+          description:
+            'For single units: A condensed 1-2 sentence description of what the project does and who it is for. Required when type is "single".',
         },
         units: {
           type: 'array',
-          description: 'For multiple units: An array of 3-6 distinct buildable units. Required when type is "multiple".',
+          description:
+            'For multiple units: An array of 3-6 distinct buildable units. Required when type is "multiple".',
           items: {
             type: 'object',
             properties: {
-              id: {
-                type: 'number',
-                description: 'Sequential ID starting from 1',
-              },
-              name: {
-                type: 'string',
-                description: 'Short name for the unit (3-6 words)',
-              },
+              id: { type: 'number', description: 'Sequential ID starting from 1' },
+              name: { type: 'string', description: 'Short name for the unit (3-6 words)' },
               description: {
                 type: 'string',
                 description: 'A 1-2 sentence description of this buildable unit',
@@ -107,123 +107,129 @@ function isClearlySimple(input: string): boolean {
   return (
     input.length < 200 &&
     !input.toLowerCase().includes(' and ') &&
-    input.split('.').filter(s => s.trim()).length <= 2
+    input.split('.').filter((s) => s.trim()).length <= 2
   );
 }
 
-export async function POST(request: NextRequest) {
-  const startTime = Date.now();
+export async function POST(req: Request): Promise<Response> {
+  const ctx = log.begin();
 
   try {
-    const body: AnalyzeProjectRequest = await request.json();
+    const body: AnalyzeProjectRequest = await req.json();
     const { projectDescription, attachedDocContent } = body;
 
-    // Combine description and doc content
+    // Validate input structure  never log content
+    const hasDescription = Boolean(projectDescription?.trim());
+    const hasDoc = Boolean(attachedDocContent?.trim());
+    log.info(ctx.reqId, 'Request received', { hasDescription, hasDoc });
+
     const fullInput = [
       projectDescription || '',
-      attachedDocContent ? `\n\n--- Attached Document ---\n${attachedDocContent}` : ''
-    ].join('').trim();
+      attachedDocContent ? `\n\n--- Attached Document ---\n${attachedDocContent}` : '',
+    ]
+      .join('')
+      .trim();
 
     if (!fullInput) {
-      return NextResponse.json(
-        { error: 'No project description provided' },
-        { status: 400 }
+      return log.end(
+        ctx,
+        Response.json({ error: 'No project description provided' }, { status: 400 })
       );
     }
 
-    // Only check for gibberish if user typed something (not when they just attached a doc)
+    // Block gibberish inputs before hitting OpenAI
     const userTypedText = (projectDescription || '').trim();
     if (userTypedText && !attachedDocContent && isGibberishInput(userTypedText)) {
-      return NextResponse.json(
-        { error: 'Please provide a meaningful project description. Your input appears to be random characters.' },
-        { status: 400 }
+      return log.end(
+        ctx,
+        Response.json(
+          {
+            error:
+              'Please provide a meaningful project description. Your input appears to be random characters.',
+          },
+          { status: 400 }
+        )
       );
     }
 
-    console.log('[AI Analysis] Input length:', fullInput.length);
-    console.log('[AI Analysis] First 200 chars:', fullInput.slice(0, 200));
+    // Rate limit check
+    const ip = getClientIP(req);
+    if (isRateLimited('analyze-project', ip, LIMITS['analyze-project'])) {
+      log.warn(ctx.reqId, 'Rate limited', { ip });
+      return log.end(
+        ctx,
+        Response.json({ error: 'Rate limit exceeded. Try again tomorrow.' }, { status: 429 })
+      );
+    }
 
+    // Proxy: forward to OpenAI  no prompt content logged
     const message = await openai.chat.completions.create({
       model: 'gpt-5-mini',
       max_tokens: 2000,
       tools: [analyzeProjectTool],
       tool_choice: { type: 'function', function: { name: 'analyze_project' } },
-      messages: [
-        { role: 'user', content: buildAnalysisPrompt(fullInput) },
-      ],
+      messages: [{ role: 'user', content: buildAnalysisPrompt(fullInput) }],
     });
 
-    const duration = Date.now() - startTime;
-    console.log(`[AI Analysis] API call took ${duration}ms`);
-
     const toolCall = message.choices[0].message.tool_calls?.[0];
-
     if (!toolCall) {
-      console.error('[AI Analysis] No tool call in response');
       throw new Error('AI did not return structured analysis');
     }
 
     const result = JSON.parse(toolCall.function.arguments) as AnalysisResult;
 
-    // Validate the result
+    // Validate response shape
     if (result.type === 'single') {
       if (!result.summary || typeof result.summary !== 'string') {
         throw new Error('Invalid single unit response: missing summary');
       }
-      console.log('[AI Analysis] Result: single unit');
     } else if (result.type === 'multiple') {
       if (!('units' in result) || !Array.isArray(result.units) || result.units.length < 2) {
         throw new Error('Invalid multiple units response: missing or too few units');
       }
-      console.log('[AI Analysis] Result: multiple units, count:', result.units.length);
     } else {
-      throw new Error('Invalid response type: must be "single" or "multiple"');
+      throw new Error('Invalid response type');
     }
 
-    return NextResponse.json({ result });
-
+    log.info(ctx.reqId, 'Analysis complete', { type: result.type });
+    return log.end(ctx, Response.json({ result }));
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`[AI Analysis] Error after ${duration}ms:`, error);
-
-    // Get the original input for fallback logic
+    // Smart fallback: if clearly simple, return description as-is rather than hard error
     let projectDescription = '';
     try {
-      const body = await request.clone().json();
+      const body = await req.clone().json();
       projectDescription = body.projectDescription || '';
     } catch {
-      // Ignore parse errors
+      // req body already consumed
     }
 
-    // Smart fallback: only use for clearly simple inputs
     if (isClearlySimple(projectDescription)) {
-      console.log('[AI Analysis] Using smart fallback for simple input');
-      return NextResponse.json({
-        result: {
-          type: 'single',
-          summary: projectDescription.trim(),
-        } as AnalysisResult,
-        fallback: true,
-      });
+      log.warn(ctx.reqId, 'Using smart fallback for simple input');
+      return log.end(
+        ctx,
+        Response.json({
+          result: { type: 'single', summary: projectDescription.trim() } as AnalysisResult,
+          fallback: true,
+        })
+      );
     }
+
+    log.err(ctx, error);
 
     if (error instanceof OpenAI.APIError) {
       if (error.status === 401) {
-        return NextResponse.json(
-          { error: 'Invalid API key. Please check your configuration.' },
-          { status: 401 }
-        );
+        return Response.json({ error: 'Invalid API key.' }, { status: 401 });
       }
       if (error.status === 429) {
-        return NextResponse.json(
+        return Response.json(
           { error: 'Rate limit exceeded. Please try again in a moment.' },
           { status: 429 }
         );
       }
     }
 
-    return NextResponse.json(
-      { error: 'We couldn\'t analyze your project. Please try again or simplify your description.' },
+    return Response.json(
+      { error: "We couldn't analyze your project. Please try again or simplify your description." },
       { status: 500 }
     );
   }
