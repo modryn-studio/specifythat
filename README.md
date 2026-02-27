@@ -1,3 +1,5 @@
+![SpecifyThat](public/brand/banner.png)
+
 # SpecifyThat
 
 Turn a vague idea into a build-ready spec in under 60 seconds.
@@ -18,12 +20,12 @@ Your prompts are never stored on our servers.
 
 ## Stack
 
-- **Framework**: Next.js (App Router) + TypeScript
-- **Styling**: Tailwind CSS v4 — dark mode, CSS custom properties
-- **AI**: OpenAI (`gpt-4o-mini`) via thin server-side proxy routes
-- **State**: Zustand with manual localStorage persistence (no accounts required)
+- **Framework**: Next.js 16 (App Router) + TypeScript
+- **Styling**: Tailwind CSS v4 — dark mode, CSS custom properties, no config file
+- **AI**: OpenAI (`gpt-5-mini`) via thin server-side proxy routes
+- **State**: Zustand + manual localStorage persistence (no accounts required)
 - **ID generation**: nanoid
-- **Analytics**: Vercel Analytics (pageviews) + GA4 (custom events)
+- **Analytics**: Vercel Analytics (pageviews) + GA4 (custom events via `analytics.ts`)
 - **Icons**: lucide-react
 - **Deployment**: Vercel
 
@@ -55,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Required | Description |
 |---|---|---|
-| `OPENAI_API_KEY` | ✅ | OpenAI API key with access to gpt-4o-mini |
+| `OPENAI_API_KEY` | ✅ | OpenAI API key with access to gpt-5-mini |
 | `RATE_LIMIT_PER_DAY` | | Free trial cap per IP per day. Default: `5` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | Google Analytics 4 Measurement ID |
 | `RESEND_API_KEY` | | Resend API key for feedback emails (optional) |
