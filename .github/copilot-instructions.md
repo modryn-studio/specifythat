@@ -11,7 +11,7 @@ Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat turns
 - Vercel Analytics `<Analytics />` component in `layout.tsx` for pageviews only — do not use their `track()` API
 - `openai` — LLM proxy calls (analyze-project, generate-answer, generate-spec, generate-project-description)
 - `lucide-react` — icons
-- `framer-motion` — **installed but slated for removal in issue #6** (use CSS animations from globals.css instead)
+- CSS animations from `globals.css` — fade-in, fade-up, shimmer, dot-pulse (framer-motion removed in issue #6)
 - `zustand` — client-side state management with localStorage persistence (**not yet installed**)
 - `nanoid` — ID generation for specs and sessions (**not yet installed**)
 - `nodemailer` + `resend` — feedback email and newsletter contacts (**not yet installed**)
