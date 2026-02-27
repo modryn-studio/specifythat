@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SiteSchema } from '@/components/site-schema';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { site } from '@/config/site';
 import './globals.css';
 
@@ -54,8 +55,14 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Anti-FOUC: apply saved theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('specifythat:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}})();`,
+          }}
+        />
         {gaId && (
           <>
             <Script
@@ -70,6 +77,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <SiteSchema />
+        <ThemeToggle />
         {children}
         <Analytics />
       </body>

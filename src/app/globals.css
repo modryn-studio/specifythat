@@ -4,6 +4,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Dark mode is the default baseline */
   --color-bg: #111111;
   --color-surface: #1a1a1a;
   --color-surface-2: #222222;
@@ -15,6 +16,40 @@
   --color-accent-subtle: rgba(99, 102, 241, 0.12);
   --color-error: #ef4444;
   --color-success: #22c55e;
+}
+
+/* Light mode — applied via data-theme or system preference */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg: #f9f9f8;
+    --color-surface: #ffffff;
+    --color-surface-2: #f3f3f1;
+    --color-border: #e2e2df;
+    --color-text: #1a1a1a;
+    --color-text-muted: #737373;
+    --color-accent-subtle: rgba(99, 102, 241, 0.1);
+  }
+}
+
+/* Manual overrides — beat the media query */
+[data-theme="light"] {
+  --color-bg: #f9f9f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f3f3f1;
+  --color-border: #e2e2df;
+  --color-text: #1a1a1a;
+  --color-text-muted: #737373;
+  --color-accent-subtle: rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="dark"] {
+  --color-bg: #111111;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #222222;
+  --color-border: #2a2a2a;
+  --color-text: #e5e5e5;
+  --color-text-muted: #888888;
+  --color-accent-subtle: rgba(99, 102, 241, 0.12);
 }
 
 * {
