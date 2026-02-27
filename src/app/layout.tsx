@@ -34,7 +34,10 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    icon: '/icon.png',
+    icon: [
+      { url: '/icon-light.png', media: '(prefers-color-scheme: light)', type: 'image/png' },
+      { url: '/icon-dark.png', media: '(prefers-color-scheme: dark)', type: 'image/png' },
+    ],
     apple: '/apple-icon.png',
   },
   robots: {
