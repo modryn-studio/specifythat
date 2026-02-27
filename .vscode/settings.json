@@ -1,0 +1,9 @@
+{
+  "chat.agent.enabled": true,
+  "github.copilot.chat.agent.autoFix": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
