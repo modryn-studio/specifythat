@@ -24,6 +24,9 @@ interface SessionState {
   // Output
   generatedSpec: string | null;
 
+  // All answers generated at once (auto_filling phase → review phase)
+  allAnswers: Answer[];
+
   // Timestamps (ISO strings)
   startedAt: string | null;
   completedAt: string | null;
@@ -34,6 +37,8 @@ interface SessionState {
   setProjectDescription: (desc: string) => void;
   setAnalysisResult: (result: AnalysisResult) => void;
   setSelectedUnitId: (id: number | null) => void;
+  setAllAnswers: (answers: Answer[]) => void;
+  updateAllAnswer: (questionText: string, newAnswer: string) => void;
   addAnswer: (answer: Answer) => void;
   updateAnswer: (questionText: string, patch: Partial<Answer>) => void;
   nextQuestion: () => void;
@@ -49,6 +54,8 @@ type Actions = Pick<
   | 'setProjectDescription'
   | 'setAnalysisResult'
   | 'setSelectedUnitId'
+  | 'setAllAnswers'
+  | 'updateAllAnswer'
   | 'addAnswer'
   | 'updateAnswer'
   | 'nextQuestion'
@@ -65,6 +72,7 @@ const INITIAL: Omit<SessionState, keyof Actions> = {
   answers: [],
   currentQuestionIndex: 0,
   generatedSpec: null,
+  allAnswers: [],
   startedAt: null,
   completedAt: null,
 };
@@ -111,6 +119,23 @@ export const useSessionStore = create<SessionState>((set) => {
     setSelectedUnitId: (selectedUnitId) =>
       set((s) => {
         const next = { ...s, selectedUnitId };
+        persist(next);
+        return next;
+      }),
+
+    setAllAnswers: (allAnswers) =>
+      set((s) => {
+        const next = { ...s, allAnswers };
+        persist(next);
+        return next;
+      }),
+
+    updateAllAnswer: (questionText, newAnswer) =>
+      set((s) => {
+        const allAnswers = s.allAnswers.map((a) =>
+          a.question === questionText ? { ...a, answer: newAnswer } : a
+        );
+        const next = { ...s, allAnswers };
         persist(next);
         return next;
       }),

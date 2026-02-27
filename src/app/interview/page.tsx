@@ -1,37 +1,94 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Copy, Download, RotateCcw, Sparkles } from 'lucide-react';
+import { ChevronRight, Copy, Download, FileText, Layers, RotateCcw, Sparkles, Target, Upload } from 'lucide-react';
 import { useInterviewSession } from '@/hooks/useInterviewSession';
 import { useSessionStore } from '@/stores/session';
 import { analytics } from '@/lib/analytics';
-import { totalQuestions } from '@/lib/questions';
+import { questions, totalQuestions } from '@/lib/questions';
+import { AnswerCard } from '@/components/answer-card';
+
+const AUTO_FILL_STAGES = [
+  { threshold: 0,  text: 'Analyzing your project…',           icon: FileText },
+  { threshold: 25, text: 'Answering strategic questions…',     icon: Target },
+  { threshold: 55, text: 'Building specification structure…',  icon: Layers },
+  { threshold: 80, text: 'Finalizing details…',                icon: Sparkles },
+];
 
 export default function InterviewPage() {
   const session = useSessionStore();
   const interview = useInterviewSession();
 
   const [inputValue, setInputValue] = useState('');
+  const [docContent, setDocContent] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [autoFillProgress, setAutoFillProgress] = useState(0);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-focus input on phase change
+  // Auto-focus on phase change
   useEffect(() => {
-    if (
-      session.phase === 'project_input' ||
-      session.phase === 'interview'
-    ) {
+    if (session.phase === 'project_input' || session.phase === 'interview') {
       setInputValue('');
       setAiAnswer('');
       setError('');
       setTimeout(() => textareaRef.current?.focus(), 60);
     }
   }, [session.phase, session.currentQuestionIndex]);
+
+  // Animate progress bar during auto_filling phase
+  useEffect(() => {
+    if (session.phase === 'auto_filling') {
+      setAutoFillProgress(0);
+      progressIntervalRef.current = setInterval(() => {
+        setAutoFillProgress((p) => {
+          // Slow down as it approaches 90% — real API response completes it
+          if (p >= 90) return p;
+          const increment = p < 50 ? 1.5 : p < 75 ? 0.8 : 0.3;
+          return Math.min(p + increment, 90);
+        });
+      }, 80);
+    } else {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      if (session.phase === 'review') setAutoFillProgress(100);
+    }
+    return () => {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    };
+  }, [session.phase]);
+
+  // ─── File upload ───────────────────────────────────────────────
+
+  const handleFileUpload = useCallback((file: File | null) => {
+    if (!file) return;
+    const validExtensions = ['.txt', '.md'];
+    if (!validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))) {
+      setError('Please upload a .txt or .md file.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File must be under 10MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = (e.target?.result as string)?.slice(0, 10240) || '';
+      setDocContent(text);
+      setFileName(file.name);
+    };
+    reader.readAsText(file);
+  }, []);
 
   // ─── Handlers ──────────────────────────────────────────────────
 
@@ -43,7 +100,7 @@ export default function InterviewPage() {
       return;
     }
     setError('');
-    await interview.analyzeProject(desc);
+    await interview.analyzeProject(desc, docContent || undefined);
   }
 
   async function handleAIGenerate() {
@@ -83,6 +140,12 @@ export default function InterviewPage() {
     setInputValue('');
   }
 
+  async function handleGenerateSpec() {
+    setIsSubmittingReview(true);
+    await interview.submitReview();
+    setIsSubmittingReview(false);
+  }
+
   function handleCopySpec() {
     if (!session.generatedSpec) return;
     navigator.clipboard.writeText(session.generatedSpec);
@@ -93,8 +156,8 @@ export default function InterviewPage() {
 
   function handleDownloadSpec() {
     if (!session.generatedSpec) return;
-    const projectName =
-      session.answers.find((a) => a.question.includes('name'))?.answer || 'spec';
+    const answers = session.allAnswers.length > 0 ? session.allAnswers : session.answers;
+    const projectName = answers.find((a) => a.question.includes('name'))?.answer || 'spec';
     const blob = new Blob([session.generatedSpec], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -143,16 +206,16 @@ export default function InterviewPage() {
           )}
 
           {/* Resume banner */}
-          {!interview.isRateLimited && session.id && session.answers.length > 0 && (
+          {!interview.isRateLimited && session.id && session.allAnswers.length > 0 && (
             <div
               className="mb-6 p-4 rounded-lg border flex items-center justify-between gap-4 text-sm"
               style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}
             >
               <span style={{ color: 'var(--color-text)' }}>
-                You have an interview in progress ({session.answers.length}/{totalQuestions} answered).
+                You have a spec ready to review.
               </span>
               <button
-                onClick={() => session.setPhase('interview')}
+                onClick={() => session.setPhase('review')}
                 className="font-medium underline shrink-0"
                 style={{ color: 'var(--color-accent)' }}
               >
@@ -162,26 +225,57 @@ export default function InterviewPage() {
           )}
 
           <form onSubmit={handleProjectSubmit} className="space-y-4">
-            <textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="e.g. A tool that converts Figma screenshots into Tailwind code. For frontend devs who hate copying layouts manually."
-              rows={5}
-              className="w-full rounded-xl p-4 text-sm resize-none border focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+            {/* Description textarea + drag-and-drop zone */}
+            <div
+              className="rounded-xl border transition-colors overflow-hidden"
               style={{
-                background: 'var(--color-surface)',
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text)',
+                borderColor: isDragging ? 'var(--color-accent)' : 'var(--color-border)',
+                background: isDragging ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
               }}
-            />
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFileUpload(e.dataTransfer.files[0]); }}
+            >
+              <textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="e.g. A tool that converts Figma screenshots into Tailwind code. For frontend devs who hate copying layouts manually."
+                rows={5}
+                className="w-full p-4 text-sm resize-none focus:outline-none transition-colors"
+                style={{
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                }}
+              />
+              {/* File upload row */}
+              <label
+                className="flex items-center gap-2 px-4 py-3 border-t cursor-pointer transition-colors"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                <Upload size={14} style={{ color: 'var(--color-text-muted)' }} />
+                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                  {fileName || 'Attach a .txt or .md file (optional, up to 10MB)'}
+                </span>
+                <input
+                  type="file"
+                  accept=".txt,.md"
+                  className="hidden"
+                  onChange={(e) => handleFileUpload(e.target.files?.[0] ?? null)}
+                />
+              </label>
+            </div>
+
             {error && <p className="text-sm" style={{ color: 'var(--color-error)' }}>{error}</p>}
+
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+              disabled={!inputValue.trim()}
+              className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-accent)', color: '#fff' }}
             >
-              Analyze project
+              <Sparkles size={15} />
+              Generate my spec
               <ChevronRight size={16} />
             </button>
           </form>
@@ -252,6 +346,127 @@ export default function InterviewPage() {
     );
   }
 
+  if (session.phase === 'auto_filling') {
+    const currentStage =
+      [...AUTO_FILL_STAGES].reverse().find((s) => autoFillProgress >= s.threshold) ??
+      AUTO_FILL_STAGES[0];
+    const StageIcon = currentStage.icon;
+
+    return (
+      <Shell>
+        <div className="animate-fade-up max-w-md w-full mx-auto text-center">
+          <div
+            className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center"
+            style={{ background: 'var(--color-accent-subtle)', border: '1px solid var(--color-accent)' }}
+          >
+            <StageIcon size={28} style={{ color: 'var(--color-accent)' }} />
+          </div>
+
+          <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--color-text)' }}>
+            {currentStage.text}
+          </h2>
+
+          {/* Progress bar */}
+          <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: 'var(--color-surface-2)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${autoFillProgress}%`, background: 'var(--color-accent)' }}
+            />
+          </div>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            {Math.round(autoFillProgress)}% complete
+          </p>
+
+          {/* Stage dots */}
+          <div className="flex justify-center gap-3 mt-6">
+            {AUTO_FILL_STAGES.map((s, i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full transition-colors duration-300"
+                style={{
+                  background: autoFillProgress >= s.threshold
+                    ? 'var(--color-accent)'
+                    : 'var(--color-surface-2)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (session.phase === 'review') {
+    const answersToReview = session.allAnswers.length > 0 ? session.allAnswers : session.answers;
+    const editedCount = answersToReview.filter((a) =>
+      session.allAnswers.find((b) => b.question === a.question && b.answer !== a.answer)
+    ).length;
+
+    return (
+      <Shell wide>
+        <div className="animate-fade-up max-w-2xl w-full mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>
+              Review your spec
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              AI answered all {totalQuestions} questions based on your description. Edit any answer before generating.
+            </p>
+          </div>
+
+          <div className="space-y-3 mb-24">
+            {questions.map((q) => {
+              const answer = answersToReview.find((a) => a.question === q.text);
+              const original = session.allAnswers.find((a) => a.question === q.text);
+              const isEdited = !!answer && !!original && answer.answer !== original.answer;
+
+              return (
+                <AnswerCard
+                  key={q.id}
+                  question={q}
+                  answer={answer?.answer ?? ''}
+                  isEdited={isEdited}
+                  onSave={(questionText, newAnswer) =>
+                    interview.updateReviewAnswer(questionText, newAnswer)
+                  }
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Sticky footer */}
+        <div
+          className="fixed bottom-0 left-0 right-0 p-4 border-t"
+          style={{ background: 'var(--color-bg)', borderColor: 'var(--color-border)' }}
+        >
+          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              {editedCount > 0 ? `${editedCount} answer${editedCount > 1 ? 's' : ''} edited` : 'All AI-generated — edit anything before building'}
+            </p>
+            <button
+              onClick={handleGenerateSpec}
+              disabled={isSubmittingReview}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
+              style={{ background: 'var(--color-accent)', color: '#fff' }}
+            >
+              {isSubmittingReview ? (
+                <span className="dot-pulse flex gap-1.5"><span /><span /><span /></span>
+              ) : (
+                <>
+                  <Sparkles size={15} />
+                  Generate spec
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  // ─── Legacy: per-question interview (fallback if batch fails) ────
+
   if (session.phase === 'interview') {
     const q = interview.currentQuestion;
     if (!q) return null;
@@ -273,7 +488,6 @@ export default function InterviewPage() {
         </div>
 
         <div className="animate-fade-up max-w-xl w-full mx-auto">
-          {/* Section label */}
           <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: 'var(--color-accent)' }}>
             {q.section}
           </p>
@@ -294,7 +508,7 @@ export default function InterviewPage() {
               value={inputValue}
               onChange={(e) => {
                 setInputValue(e.target.value);
-                setAiAnswer(''); // clear AI answer if user types
+                setAiAnswer('');
               }}
               placeholder="Your answer (or leave blank and let AI generate)…"
               rows={4}
@@ -306,22 +520,14 @@ export default function InterviewPage() {
               }}
             />
 
-            {/* AI generated answer preview */}
             {aiAnswer && (
               <div
                 className="p-4 rounded-xl border text-sm animate-fade-down"
                 style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)', color: 'var(--color-text)' }}
               >
-                <p className="text-xs font-medium mb-2" style={{ color: 'var(--color-accent)' }}>
-                  AI suggestion
-                </p>
+                <p className="text-xs font-medium mb-2" style={{ color: 'var(--color-accent)' }}>AI suggestion</p>
                 <p className="whitespace-pre-wrap leading-relaxed">{aiAnswer}</p>
-                <button
-                  type="button"
-                  onClick={handleAcceptAI}
-                  className="mt-3 text-xs font-medium underline"
-                  style={{ color: 'var(--color-accent)' }}
-                >
+                <button type="button" onClick={handleAcceptAI} className="mt-3 text-xs font-medium underline" style={{ color: 'var(--color-accent)' }}>
                   Use this →
                 </button>
               </div>
@@ -335,19 +541,12 @@ export default function InterviewPage() {
                 onClick={handleAIGenerate}
                 disabled={isGeneratingAnswer}
                 className="flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 border transition-colors disabled:opacity-50"
-                style={{
-                  background: 'var(--color-surface)',
-                  borderColor: 'var(--color-border)',
-                  color: 'var(--color-text)',
-                }}
+                style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
               >
                 {isGeneratingAnswer ? (
                   <span className="dot-pulse flex gap-1.5"><span /><span /><span /></span>
                 ) : (
-                  <>
-                    <Sparkles size={15} />
-                    AI suggest
-                  </>
+                  <><Sparkles size={15} />AI suggest</>
                 )}
               </button>
 
@@ -412,7 +611,7 @@ export default function InterviewPage() {
           </div>
 
           <div
-            className="rounded-xl border p-6 text-sm font-mono whitespace-pre-wrap overflow-auto max-h-[60vh] leading-relaxed"
+            className="rounded-xl border p-6 text-sm font-mono whitespace-pre-wrap overflow-auto max-h-[60vh] leading-relaxed mb-6"
             style={{
               background: 'var(--color-surface)',
               borderColor: 'var(--color-border)',
@@ -422,7 +621,22 @@ export default function InterviewPage() {
             {session.generatedSpec}
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          {/* Next step */}
+          <div
+            className="rounded-xl border p-4 mb-6"
+            style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}
+          >
+            <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text)' }}>
+              Next step
+            </p>
+            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              Paste this into your favorite AI creator —{' '}
+              <span style={{ color: 'var(--color-text)' }}>Cursor, VS Code Copilot, Claude, ChatGPT, Bolt, v0,</span>{' '}or{' '}
+              <span style={{ color: 'var(--color-text)' }}>Emergent</span> — and start building.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
             <button
               onClick={() => {
                 interview.clearSession();
@@ -450,9 +664,9 @@ export default function InterviewPage() {
   return null;
 }
 
-// ─── Shared shell ────────────────────────────────────────────────
+// ─── Shared shell ────────────────────────────────────
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <div
       className="min-h-dvh flex flex-col items-center justify-center px-4 py-16"
@@ -465,7 +679,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       >
         SpecifyThat
       </Link>
-      {children}
+      <div className={wide ? 'w-full max-w-2xl' : undefined}>{children}</div>
     </div>
   );
 }

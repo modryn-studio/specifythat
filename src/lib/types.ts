@@ -130,6 +130,17 @@ export type InterviewPhase =
   | 'project_input'  // User entering project description
   | 'analyzing'      // AI analyzing description
   | 'unit_picker'    // Multi-unit: user picking which unit to spec
-  | 'interview'      // Active question/answer loop
+  | 'auto_filling'   // AI generating all 13 answers at once
+  | 'review'         // User reviewing/editing all answers before spec
+  | 'interview'      // Legacy: Active question/answer loop (unused in v2 flow)
   | 'generating'     // AI assembling final spec
   | 'done';          // Spec ready
+
+export interface GenerateAllAnswersRequest {
+  projectDescription: string;
+  projectSummary: string;
+}
+
+export interface GenerateAllAnswersResponse {
+  answers: Answer[];
+}

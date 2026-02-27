@@ -56,6 +56,7 @@ export function getLimits() {
   return {
     'analyze-project': specsPerDay * 3,           // ~3 retries per spec
     'generate-answer': specsPerDay * 11 * 2,      // 11 questions * 2x headroom
+    'generate-all-answers': specsPerDay,          // One per spec (batch call)
     'generate-spec': specsPerDay,                 // Hard cap — one per spec
     'generate-project-description': specsPerDay * 2,
   };

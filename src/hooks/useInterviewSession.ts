@@ -10,8 +10,9 @@ import { analytics } from '@/lib/analytics';
 /**
  * useInterviewSession — state machine for the interview flow.
  *
- * Drives all phase transitions. Components read from useSessionStore directly;
- * this hook exposes actions that advance the machine.
+ * v2 flow: project_input → analyzing → (unit_picker?) → auto_filling → review → generating → done
+ *
+ * Components read from useSessionStore directly; this hook exposes actions.
  */
 export function useInterviewSession() {
   const session = useSessionStore();
@@ -20,8 +21,8 @@ export function useInterviewSession() {
   // Prevent duplicate in-flight AI requests
   const aiInFlight = useRef(false);
 
-  // Exposed so the UI can show the right message instead of a generic error
   const [rateLimited, setRateLimited] = useState(false);
+  const [autoFillError, setAutoFillError] = useState(false);
 
   // ─── Phase: project_input ──────────────────────────────────────
 
@@ -70,34 +71,89 @@ export function useInterviewSession() {
 
         if (result.type === 'multiple') {
           session.setPhase('unit_picker');
+          aiInFlight.current = false;
         } else {
-          // Single unit — jump straight into interview
-          session.setPhase('interview');
+          // Single unit — batch-generate all answers
+          aiInFlight.current = false;
+          await generateAllAnswers(description, result.summary);
         }
       } catch {
-        // Fall back: treat description as-is (single unit)
-        const fallback: AnalysisResult = {
-          type: 'single',
-          summary: description.trim(),
-        };
+        const fallback: AnalysisResult = { type: 'single', summary: description.trim() };
         session.setAnalysisResult(fallback);
-        session.setPhase('interview');
-      } finally {
         aiInFlight.current = false;
+        await generateAllAnswers(description, description.trim());
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [session]
   );
 
-  // ─── Phase: unit_picker → interview ───────────────────────────
+  // ─── Phase: unit_picker → auto_filling ──────────────────────
 
   const selectUnit = useCallback(
-    (unitId: number) => {
+    async (unitId: number) => {
       session.setSelectedUnitId(unitId);
-      session.setPhase('interview');
+      const desc = session.projectDescription;
+      const units =
+        session.analysisResult?.type === 'multiple' ? session.analysisResult.units : [];
+      const unit = units.find((u) => u.id === unitId);
+      await generateAllAnswers(desc, unit?.description ?? desc);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session]
+  );
+
+  // ─── Phase: auto_filling ──────────────────────────────────────
+
+  const generateAllAnswers = useCallback(
+    async (description: string, summary: string): Promise<void> => {
+      session.setPhase('auto_filling');
+      setAutoFillError(false);
+
+      try {
+        const res = await fetch('/api/generate-all-answers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectDescription: description, projectSummary: summary }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 429) {
+          analytics.rateLimitHit({ route: 'generate-all-answers' });
+          setRateLimited(true);
+          session.setPhase('project_input');
+          return;
+        }
+
+        if (!res.ok) throw new Error(data.error || 'Auto-fill failed');
+
+        const answers: Answer[] = data.answers;
+        session.setAllAnswers(answers);
+        session.setPhase('review');
+      } catch {
+        setAutoFillError(true);
+        session.setPhase('interview'); // graceful fallback
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session]
+  );
+
+  // ─── Phase: review — edit individual answers ──────────────────
+
+  const updateReviewAnswer = useCallback(
+    (questionText: string, newAnswer: string) => {
+      session.updateAllAnswer(questionText, newAnswer);
     },
     [session]
   );
+
+  const submitReview = useCallback(async () => {
+    // generateSpec reads allAnswers when answers array is empty (review flow)
+    await generateSpec();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   // ─── Phase: interview — per-question actions ───────────────────
 
@@ -187,11 +243,17 @@ export function useInterviewSession() {
   const generateSpec = useCallback(async () => {
     session.setPhase('generating');
 
+    // Use allAnswers if we came from the review flow, else per-question answers
+    const answersToUse =
+      session.allAnswers.length > 0 && session.answers.length === 0
+        ? session.allAnswers
+        : session.answers;
+
     try {
       const res = await fetch('/api/generate-spec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: session.answers }),
+        body: JSON.stringify({ answers: answersToUse }),
       });
 
       const data = await res.json();
@@ -199,19 +261,17 @@ export function useInterviewSession() {
 
       const spec: string = data.spec;
 
-      // Save to spec history
-      const projectNameAnswer = session.answers.find(
+      const projectNameAnswer = answersToUse.find(
         (a) => a.question === questions[0].text
       );
       const projectName = projectNameAnswer?.answer || 'Untitled Project';
 
-      addSpec(projectName, spec, session.answers);
-      session.setGeneratedSpec(spec); // also sets phase to 'done'
+      addSpec(projectName, spec, answersToUse);
+      session.setGeneratedSpec(spec);
 
       analytics.specGenerated();
     } catch {
-      // Don't leave user stuck in 'generating' — fall back to interview phase
-      session.setPhase('interview');
+      session.setPhase('review');
     }
   }, [session, addSpec]);
 
@@ -223,11 +283,11 @@ export function useInterviewSession() {
   const isLastQuestion = session.currentQuestionIndex === totalQuestions - 1;
 
   return {
-    // State
     isRateLimited: rateLimited,
-    // State (read from store directly for reactivity)
+    autoFillError,
     phase: session.phase,
     answers: session.answers,
+    allAnswers: session.allAnswers,
     currentQuestionIndex: session.currentQuestionIndex,
     currentQuestion,
     analysisResult: session.analysisResult,
@@ -235,10 +295,12 @@ export function useInterviewSession() {
     progress,
     isLastQuestion,
 
-    // Actions
     startSession,
     analyzeProject,
     selectUnit,
+    generateAllAnswers,
+    updateReviewAnswer,
+    submitReview,
     submitAnswer,
     acceptAIAnswer,
     generateAnswer,
