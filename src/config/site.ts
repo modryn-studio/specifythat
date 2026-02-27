@@ -1,17 +1,19 @@
 // Single source of truth for all site-wide metadata.
-// /init fills this in from context.md + brand.md.
+// Populated by /init from context.md + brand.md.
 // Every other file imports from here — never hardcode site metadata elsewhere.
 export const site = {
-  name: 'TODO: site name',
-  shortName: 'TODO',
-  url: 'https://DOMAIN.com', // TODO: replace with actual domain
+  name: 'SpecifyThat',
+  shortName: 'SpecifyThat',
+  url: 'https://specifythat.com',
   // Base description — used in <meta description>, manifest, JSON-LD
-  description: 'TODO: meta description (110–160 chars)',
+  description:
+    'Turn a vague idea into a build-ready spec in 60 seconds. Answer two questions — AI handles the rest. No account, no signup required.',
   // Longer form for social cards
-  ogTitle: 'TODO: OG title (50–60 chars)',
-  ogDescription: 'TODO: OG description (110–160 chars)',
-  founder: 'TODO: founder name',
-  // Brand colors — used in manifest theme_color / background_color
-  accent: '#F97415', // TODO: brand accent hex
-  bg: '#050505', // TODO: brand background hex
+  ogTitle: 'SpecifyThat | Turn Your Idea Into a Build-Ready Spec',
+  ogDescription:
+    'Stop skipping the spec. SpecifyThat interviews you, generates the answers, and outputs a structured document ready to paste into any AI coding tool.',
+  founder: 'Luke Hanner',
+  // Brand colors — indigo accent, warm dark base
+  accent: '#6366f1',
+  bg: '#111111',
 } as const;
