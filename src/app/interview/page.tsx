@@ -30,9 +30,15 @@ export default function InterviewPage() {
   const [copied, setCopied] = useState(false);
   const [autoFillProgress, setAutoFillProgress] = useState(0);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Auto-focus on phase change
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-focus on phase change
   useEffect(() => {
@@ -169,6 +175,22 @@ export default function InterviewPage() {
   }
 
   // ─── Phases ────────────────────────────────────────────────────
+
+  // ─── Phases ────────────────────────────────────────────────────
+
+  // Suppress hydration mismatch: server always renders project_input,
+  // but client restores phase from localStorage. Show nothing until mounted.
+  if (!mounted) {
+    return (
+      <Shell>
+        <div className="flex flex-col items-center gap-6">
+          <div className="dot-pulse flex gap-2">
+            <span /><span /><span />
+          </div>
+        </div>
+      </Shell>
+    );
+  }
 
   if (session.phase === 'project_input') {
     return (
