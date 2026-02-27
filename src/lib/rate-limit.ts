@@ -49,10 +49,18 @@ export function isRateLimited(route: string, ip: string, limit: number): boolean
 }
 
 // Per-route limits.
-// These are conservative — adjust based on analytics data once live.
-export const LIMITS = {
-  'analyze-project': 15,        // ~3 retries per spec * 5 specs/day
-  'generate-answer': 110,       // 11 questions * 5 specs + headroom
-  'generate-spec': 5,           // Hard cap — this is the money shot
-  'generate-project-description': 10,
-} as const;
+// RATE_LIMIT_PER_DAY controls the hard cap on spec starts (analyze-project).
+// Other limits are derived relative to that cap so they never become a bottleneck.
+export function getLimits() {
+  const specsPerDay = parseInt(process.env.RATE_LIMIT_PER_DAY ?? '5', 10);
+  return {
+    'analyze-project': specsPerDay * 3,           // ~3 retries per spec
+    'generate-answer': specsPerDay * 11 * 2,      // 11 questions * 2x headroom
+    'generate-spec': specsPerDay,                 // Hard cap — one per spec
+    'generate-project-description': specsPerDay * 2,
+  };
+}
+
+// Convenience export for callers that need a quick lookup without the function call.
+// Evaluated once at module load — that's fine for serverless cold starts.
+export const LIMITS = getLimits();

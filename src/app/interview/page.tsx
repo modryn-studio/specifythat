@@ -119,8 +119,32 @@ export default function InterviewPage() {
             Describe your project in a few sentences. We'll handle the rest.
           </p>
 
+          {/* Rate limit banner */}
+          {interview.isRateLimited && (
+            <div
+              className="mb-6 p-4 rounded-lg border text-sm"
+              style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'var(--color-error)' }}
+            >
+              <p style={{ color: 'var(--color-text)' }}>
+                You've used your free specs today. Come back tomorrow —{' '}
+                <a
+                  href="#"
+                  className="underline"
+                  style={{ color: 'var(--color-accent)' }}
+                  onClick={(e) => e.preventDefault()}
+                >
+                  or get credits to keep going
+                </a>
+                .
+              </p>
+              <p className="mt-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                Credits coming soon.
+              </p>
+            </div>
+          )}
+
           {/* Resume banner */}
-          {session.id && session.answers.length > 0 && (
+          {!interview.isRateLimited && session.id && session.answers.length > 0 && (
             <div
               className="mb-6 p-4 rounded-lg border flex items-center justify-between gap-4 text-sm"
               style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}

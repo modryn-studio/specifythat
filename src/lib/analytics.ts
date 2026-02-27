@@ -29,4 +29,6 @@ export const analytics = {
   specGenerated: () => track('spec_generated'),
   specCopied: () => track('spec_copied'),
   specDownloaded: () => track('spec_downloaded'),
+  // Demand signal — when >20% of daily users hit this, it's time to add billing
+  rateLimitHit: (props: { route: string }) => track('rate_limit_hit', props),
 };

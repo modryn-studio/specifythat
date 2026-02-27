@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useSessionStore } from '@/stores/session';
 import { useSpecsStore } from '@/stores/specs';
 import { questions, totalQuestions } from '@/lib/questions';
@@ -19,6 +19,9 @@ export function useInterviewSession() {
 
   // Prevent duplicate in-flight AI requests
   const aiInFlight = useRef(false);
+
+  // Exposed so the UI can show the right message instead of a generic error
+  const [rateLimited, setRateLimited] = useState(false);
 
   // ─── Phase: project_input ──────────────────────────────────────
 
@@ -48,6 +51,15 @@ export function useInterviewSession() {
         });
 
         const data = await res.json();
+
+        if (res.status === 429) {
+          // Rate limit hit — surface to UI, do not fall back silently
+          analytics.rateLimitHit({ route: 'analyze-project' });
+          setRateLimited(true);
+          session.setPhase('project_input');
+          aiInFlight.current = false;
+          return;
+        }
 
         if (!res.ok) {
           throw new Error(data.error || 'Analysis failed');
@@ -212,6 +224,8 @@ export function useInterviewSession() {
   const isLastQuestion = session.currentQuestionIndex === totalQuestions - 1;
 
   return {
+    // State
+    isRateLimited: rateLimited,
     // State (read from store directly for reactivity)
     phase: session.phase,
     answers: session.answers,
