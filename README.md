@@ -18,15 +18,6 @@ cp .env.example .env.local
 npm run dev
 ```
 
-### Env vars
-
-| Variable | Required | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | ✅ | gpt-5-mini access |
-| `RATE_LIMIT_PER_DAY` | | Specs per IP per day. Default: `5` |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | GA4 Measurement ID |
-| `RESEND_API_KEY` | | Feedback emails (optional) |
-
 ---
 
 ## Stack
