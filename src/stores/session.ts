@@ -73,7 +73,7 @@ function persist(state: Omit<SessionState, keyof Actions>) {
   storageSet('session', state);
 }
 
-export const useSessionStore = create<SessionState>((set, get) => {
+export const useSessionStore = create<SessionState>((set) => {
   // Hydrate from localStorage on first access
   const saved = storageGet<Omit<SessionState, keyof Actions>>('session');
   const initial = saved ?? { ...INITIAL };

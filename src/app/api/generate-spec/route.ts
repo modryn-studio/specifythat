@@ -1,4 +1,4 @@
-﻿import OpenAI from 'openai';
+import OpenAI from 'openai';
 import { GenerateSpecRequest } from '@/lib/types';
 import { buildSpecFromAnswers } from '@/lib/specTemplate';
 import { createRouteLogger } from '@/lib/route-logger';
@@ -7,7 +7,7 @@ import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
 const log = createRouteLogger('generate-spec');
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY ?? 'missing',
 });
 
 export async function POST(req: Request): Promise<Response> {

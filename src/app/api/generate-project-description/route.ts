@@ -1,4 +1,4 @@
-﻿import OpenAI from 'openai';
+import OpenAI from 'openai';
 import { GenerateProjectDescriptionRequest, IdeationAnswers } from '@/lib/types';
 import { isGibberishInput } from '@/lib/sanitize';
 import { createRouteLogger } from '@/lib/route-logger';
@@ -7,7 +7,7 @@ import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
 const log = createRouteLogger('generate-project-description');
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY ?? 'missing',
 });
 
 function buildIdeationPrompt(answers: IdeationAnswers): string {

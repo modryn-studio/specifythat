@@ -14,15 +14,18 @@
     "lucide-react": "^0.575.0",
     "nanoid": "^5.1.6",
     "next": "16.0.10",
+    "nodemailer": "^8.0.1",
     "openai": "^4.96.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "resend": "^6.9.2",
     "tailwind-merge": "^3.5.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",

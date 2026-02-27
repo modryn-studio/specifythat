@@ -167,7 +167,7 @@ export default function SpecsPage() {
           {/* List */}
           {filtered.length === 0 ? (
             <p className="text-sm text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
-              No specs match "{query}"
+              No specs match &quot;{query}&quot;
             </p>
           ) : (
             <div className="space-y-3">
@@ -191,7 +191,7 @@ export default function SpecsPage() {
             {confirmClear ? (
               <div className="flex items-center gap-3">
                 <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  Delete all {specs.length} spec{specs.length === 1 ? '' : 's'}? This can't be undone.
+                  Delete all {specs.length} spec{specs.length === 1 ? '' : 's'}? This can&apos;t be undone.
                 </p>
                 <button
                   onClick={() => {

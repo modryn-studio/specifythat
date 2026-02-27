@@ -1,4 +1,4 @@
-﻿import OpenAI from 'openai';
+import OpenAI from 'openai';
 import { GenerateAnswerRequest } from '@/lib/types';
 import { questions } from '@/lib/questions';
 import { isGibberishInput } from '@/lib/sanitize';
@@ -8,7 +8,7 @@ import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
 const log = createRouteLogger('generate-answer');
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY ?? 'missing',
 });
 
 export async function POST(req: Request): Promise<Response> {

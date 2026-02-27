@@ -74,7 +74,7 @@ export function useInterviewSession() {
           // Single unit — jump straight into interview
           session.setPhase('interview');
         }
-      } catch (err) {
+      } catch {
         // Fall back: treat description as-is (single unit)
         const fallback: AnalysisResult = {
           type: 'single',
@@ -209,11 +209,10 @@ export function useInterviewSession() {
       session.setGeneratedSpec(spec); // also sets phase to 'done'
 
       analytics.specGenerated();
-    } catch (err) {
+    } catch {
       // Don't leave user stuck in 'generating' — fall back to interview phase
       session.setPhase('interview');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, addSpec]);
 
   // ─── Computed helpers ──────────────────────────────────────────

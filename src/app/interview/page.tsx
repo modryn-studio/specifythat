@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ChevronRight, Copy, Download, RotateCcw, Sparkles } from 'lucide-react';
 import { useInterviewSession } from '@/hooks/useInterviewSession';
 import { useSessionStore } from '@/stores/session';
@@ -9,7 +9,6 @@ import { analytics } from '@/lib/analytics';
 import { totalQuestions } from '@/lib/questions';
 
 export default function InterviewPage() {
-  const router = useRouter();
   const session = useSessionStore();
   const interview = useInterviewSession();
 
@@ -116,7 +115,7 @@ export default function InterviewPage() {
             What are you building?
           </h1>
           <p className="mb-8 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-            Describe your project in a few sentences. We'll handle the rest.
+            Describe your project in a few sentences. We&apos;ll handle the rest.
           </p>
 
           {/* Rate limit banner */}
@@ -126,7 +125,7 @@ export default function InterviewPage() {
               style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'var(--color-error)' }}
             >
               <p style={{ color: 'var(--color-text)' }}>
-                You've used your free specs today. Come back tomorrow —{' '}
+                You&apos;ve used your free specs today. Come back tomorrow —{' '}
                 <a
                   href="#"
                   className="underline"
@@ -194,7 +193,7 @@ export default function InterviewPage() {
               className="underline"
               style={{ color: 'var(--color-accent)' }}
             >
-              Let's figure it out
+              Let&apos;s figure it out
             </button>
           </p>
         </div>
@@ -459,13 +458,13 @@ function Shell({ children }: { children: React.ReactNode }) {
       className="min-h-dvh flex flex-col items-center justify-center px-4 py-16"
       style={{ background: 'var(--color-bg)' }}
     >
-      <a
+      <Link
         href="/"
         className="fixed top-5 left-6 text-sm font-semibold"
         style={{ color: 'var(--color-text-muted)' }}
       >
         SpecifyThat
-      </a>
+      </Link>
       {children}
     </div>
   );
