@@ -40,6 +40,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: [
+      { url: '/icon-light.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark.png',  type: 'image/png', media: '(prefers-color-scheme: dark)' },
+    ],
+  },
 };
 
 export default function RootLayout({
