@@ -12,6 +12,7 @@ Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat gener
 - GA4 for custom event tracking (via `@/lib/analytics.ts` — never call `gtag()` directly)
 - Vercel Analytics `<Analytics />` component in `layout.tsx` for pageviews only — do not use their `track()` API
 - `openai` — LLM proxy calls (analyze-project, generate-answer, generate-spec, generate-project-description)
+- `groq` — OpenAI-compatible client via different `baseURL`; used for speed-critical routes through `getLLM()`
 - `lucide-react` — icons
 - CSS animations from `globals.css` — fade-in, fade-up, shimmer, dot-pulse (framer-motion removed in issue #6)
 - `zustand` — client-side state management with localStorage persistence
@@ -32,8 +33,10 @@ Key lib files:
 - `src/lib/storage.ts` — versioned localStorage wrapper (namespaced `specifythat:*`, schema migrations)
 - `src/lib/questions.ts` — 13 hardcoded questions with AI context
 - `src/lib/sanitize.ts` — gibberish detection, input validation
-- `src/lib/specTemplate.ts` — answer-to-copilot-instructions builder
+- `src/lib/specTemplate.ts` — answer-to-context-file builder
 - `src/lib/types.ts` — all TypeScript interfaces
+- `src/lib/llm.ts` — LLM client factory; routes each API call to Groq or OpenAI based on route name
+- `src/lib/rate-limit.ts` — in-memory IP rate limiter, per-route stores, 24h window
 
 ## Route Map
 - `/`              → Landing page — hero, feature cards, CTA to start
@@ -46,6 +49,10 @@ Key lib files:
 ## Architecture Notes
 
 **Local-first proxy pattern.** API routes are thin proxies: validate rate limit → forward to OpenAI → return response. The server never logs, stores, or inspects prompt content. Honest claim: "Your prompts are never stored on our servers."
+
+**Output is a context file, not a spec.** The generated document is called a "context file" throughout the codebase and UI — never a "spec", "PRD", or "document". It's the file AI coding tools read at the start of every session. Works for GitHub Copilot, Cursor, Claude Code, Windsurf, and Bolt — tool-agnostic. `/how-it-works` explains where each tool expects it.
+
+**Multi-part flow.** Users can spec distinct modules in one session — e.g. backend + frontend separately. Each part runs the full interview flow and produces its own context file. `useInterviewSession` exposes `specAnotherPart()` to reset for the next unit without clearing the project description.
 
 **No accounts.** No signup, no email required to use the tool.
 
@@ -69,6 +76,14 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+```
+
+**LLM routing.** Never instantiate `new OpenAI()` directly in a route. Always use `getLLM(route)` from `@/lib/llm` — it returns the right client, model, and provider based on the route name. Groq handles speed-critical routes (`analyze-project`, `generate-answer`, `generate-project-description`); OpenAI handles quality-critical routes (`generate-all-answers`, `generate-spec`). Falls back to OpenAI if `GROQ_API_KEY` is not set.
+
+```typescript
+import { getLLM } from '@/lib/llm';
+const { client, model } = getLLM('my-route');
+const result = await client.chat.completions.create({ model, ... });
 ```
 
 ## Brand & Voice
