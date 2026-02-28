@@ -666,6 +666,8 @@ export default function InterviewPage() {
               The exact filename and location depends on which tool you use —{' '}
               <a
                 href="/how-it-works#where-to-put-the-file"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="underline"
                 style={{ color: 'var(--color-accent)' }}
               >
