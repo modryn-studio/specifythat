@@ -1,19 +1,28 @@
 # Wishlist — SpecifyThat
 
-> Raw feature ideas, UX friction notes, and future directions. Not prioritized.
+> Triaged 2026-03-01. Original scratch notes below with status.
 
 ---
 
-- Wish I didn't have to click 'I don't know' every time — wish it all just loaded together, then had an edit button at the end after user reviews each question if they want
-- Relabel as a planning and prompt engine
-- Skinnier header
-- May have to change the name bc of SpecifyApp, but they did sunset 11/24
-- May need to change the build sequence to spec out that this can all be done in one day with Opus
-- Can we incorporate UI into this? Like a theme question
-- Why does it always get held up at 95%?
-- The date is wrong on the final spec
-- Is it a one-paragraph summary or a two sentence summary or just a quick summary?
-- I always ask Sonnet 4.5 to review the spec and ask questions until 95% sure it can complete the job — and I ask "what would a top 0.1% person in field do" — what if the system could auto do that for me?
-- End message should say "paste prompt into your favorite AI creator" (Cursor, VS Code Copilot, Emergent, Bolt, etc.)
-- Could collect people's top Stack rankings and build a comparison site — who is best for vibe coding? (separate project)
-- Add UX structure
+## Triaged
+
+| Item | Status |
+|---|---|
+| Click 'I don't know' every time / all loaded together with edit button | ✅ Done — v2 auto_fill + review flow |
+| Relabel as a planning and prompt engine | ✅ Done — "context file" framing throughout |
+| Skinnier header | ✅ Already 48px |
+| May have to change the name bc of SpecifyApp | ✅ Non-issue — they sunset Nov '24 |
+| Change build sequence with Opus | ✅ Stale — pre-v2 |
+| Why does it always get held up at 95%? | ✅ Fixed — progress bar caps at 90%, completes on API response |
+| End message: "paste into your favorite AI creator" | ✅ Done differently — placement guide panel on done screen |
+| Could collect top Stack rankings / comparison site | 🗑️ Separate project, not SpecifyThat |
+| Add UX structure | 🗑️ Vague, stale |
+
+## Promoted to GitHub issues
+
+- **[#12 — AI confidence review step after spec generation](https://github.com/modryn-studio/specifythat/issues/12)**
+- **[#13 — Add UI/design question to context file output](https://github.com/modryn-studio/specifythat/issues/13)**
+
+## Minor remaining
+
+- `Is it a one-paragraph summary or a two sentence summary?` — review copy on question 1 in the review screen if ambiguous

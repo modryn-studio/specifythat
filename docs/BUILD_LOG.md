@@ -1,5 +1,7 @@
 # SpecifyThat — Build Log
 
+> **Archived.** This is a one-time migration record, not a living document. Ongoing changes are logged at [modrynstudio.com/log](https://modrynstudio.com/log).
+
 ---
 
 ## 2026-02-28 — LLM Migration: Claude Sonnet 4.5 → GPT-5 mini (+ API overhaul)
