@@ -88,7 +88,7 @@ No extra text, no markdown fences, no comments — just the raw JSON array.`;
       const match = parsed.find((p) => p.questionId === q.id) ?? parsed[i];
       return {
         question: q.text,
-        answer: match?.answer?.trim() ?? '',
+        answer: String(match?.answer ?? '').trim(),
         isAIGenerated: true,
       };
     });

@@ -127,7 +127,8 @@ export const useSessionStore = create<SessionState>((set) => {
 
     setAllAnswers: (allAnswers) =>
       set((s) => {
-        const next = { ...s, allAnswers };
+        // Clear any stale per-question answers so generateSpec always uses these
+        const next = { ...s, allAnswers, answers: [] };
         persist(next);
         return next;
       }),

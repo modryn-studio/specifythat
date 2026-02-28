@@ -243,9 +243,9 @@ export function useInterviewSession() {
   const generateSpec = useCallback(async () => {
     session.setPhase('generating');
 
-    // Use allAnswers if we came from the review flow, else per-question answers
+    // Use allAnswers (batch review flow) if they exist; fall back to per-question answers
     const answersToUse =
-      session.allAnswers.length > 0 && session.answers.length === 0
+      session.allAnswers.length > 0
         ? session.allAnswers
         : session.answers;
 
