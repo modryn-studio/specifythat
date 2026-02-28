@@ -37,12 +37,13 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    // sizes="any" on ICO makes Chrome deprioritize it in favour of the SVG below it.
-    // favicon.svg has embedded CSS: light = #111111, dark = #ffffff (via @media prefers-color-scheme).
-    // favicon.ico in /public/ handles direct /favicon.ico requests and very old browsers.
+    // favicon.ico in /public/ (not /src/app/) handles bare /favicon.ico requests only.
+    // Chrome 93+ supports media on <link rel="icon"> — picks the correct PNG per color scheme.
+    // Firefox also supports this. Safari falls back to favicon.ico from /public/.
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-light.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark.png',  type: 'image/png', media: '(prefers-color-scheme: dark)' },
     ],
     apple: '/apple-icon.png',
   },
