@@ -27,7 +27,7 @@ export function SiteFooter() {
               <img src="/icon-dark.png" alt="" aria-hidden="true" width={22} height={22} className="mark-on-dark" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/icon-light.png" alt="" aria-hidden="true" width={22} height={22} className="mark-on-light" />
-              <p className="text-sm font-semibold hidden sm:block" style={{ color: 'var(--color-text)' }}>
+              <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
                 SpecifyThat
               </p>
             </div>
