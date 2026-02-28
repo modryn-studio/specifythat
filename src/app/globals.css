@@ -141,28 +141,7 @@ body {
 .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
 .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
 
-/* ─── Logomark theme switching ──────────────────────────────── */
-/* Two images rendered side-by-side; CSS hides the wrong one per theme */
-.mark-on-dark  { display: block; }
-.mark-on-light { display: none;  }
 
-/* Single SVG logomark — black SVG, inverted to white in dark mode (default), black in light mode */
-.mark-logo { filter: invert(1); }
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .mark-logo { filter: none; }
-}
-[data-theme="light"] .mark-logo { filter: none; }
-[data-theme="dark"]  .mark-logo { filter: invert(1); }
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .mark-on-dark  { display: none;  }
-  :root:not([data-theme="dark"]) .mark-on-light { display: block; }
-}
-[data-theme="light"] .mark-on-dark  { display: none;  }
-[data-theme="light"] .mark-on-light { display: block; }
-[data-theme="dark"]  .mark-on-dark  { display: block; }
-[data-theme="dark"]  .mark-on-light { display: none;  }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
 

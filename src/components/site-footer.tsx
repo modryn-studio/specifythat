@@ -23,8 +23,6 @@ export function SiteFooter() {
           {/* Left: brand lockup + tagline */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logomark.svg" alt="" aria-hidden="true" width={22} height={22} className="mark-logo" />
               <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
                 SpecifyThat
               </p>

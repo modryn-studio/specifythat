@@ -22,8 +22,6 @@ export function SiteNav() {
         className="flex items-center gap-2 font-semibold text-sm tracking-tight"
         style={{ color: 'var(--color-text)' }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logomark.svg" alt="" aria-hidden="true" width={20} height={20} className="mark-logo" />
         SpecifyThat
       </Link>
 

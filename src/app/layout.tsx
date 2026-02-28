@@ -36,7 +36,6 @@ export const metadata: Metadata = {
     description: site.ogDescription,
     images: ['/og-image.png'],
   },
-  // favicon.ico auto-discovered from src/app/favicon.ico by Next.js
   robots: {
     index: true,
     follow: true,
