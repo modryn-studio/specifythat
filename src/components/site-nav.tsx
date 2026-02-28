@@ -22,7 +22,11 @@ export function SiteNav() {
         className="flex items-center gap-2 font-semibold text-sm tracking-tight"
         style={{ color: 'var(--color-text)' }}
       >
-        SpecifyThat
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon-dark.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-dark" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon-light.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-light" />
+        <span className="hidden sm:inline">SpecifyThat</span>
       </Link>
 
       {/* Right: contextual links + theme toggle */}
