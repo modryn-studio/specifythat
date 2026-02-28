@@ -24,8 +24,6 @@ export default function InterviewPage() {
   const [docContent, setDocContent] = useState('');
   const [fileName, setFileName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const [aiAnswer, setAiAnswer] = useState('');
-  const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [autoFillProgress, setAutoFillProgress] = useState(0);
@@ -42,13 +40,12 @@ export default function InterviewPage() {
 
   // Auto-focus on phase change
   useEffect(() => {
-    if (session.phase === 'project_input' || session.phase === 'interview') {
+    if (session.phase === 'project_input') {
       setInputValue('');
-      setAiAnswer('');
       setError('');
       setTimeout(() => textareaRef.current?.focus(), 60);
     }
-  }, [session.phase, session.currentQuestionIndex]);
+  }, [session.phase]);
 
   // Animate progress bar during auto_filling phase
   useEffect(() => {
@@ -107,43 +104,6 @@ export default function InterviewPage() {
     }
     setError('');
     await interview.analyzeProject(desc, docContent || undefined);
-  }
-
-  async function handleAIGenerate() {
-    setIsGeneratingAnswer(true);
-    setError('');
-    try {
-      const answer = await interview.generateAnswer(inputValue.trim() || 'Generate a best answer');
-      setAiAnswer(answer);
-    } catch {
-      setError('Something went wrong. Try again.');
-    } finally {
-      setIsGeneratingAnswer(false);
-    }
-  }
-
-  function handleAcceptAI() {
-    if (!aiAnswer) return;
-    interview.acceptAIAnswer(aiAnswer);
-    setAiAnswer('');
-    setInputValue('');
-  }
-
-  async function handleManualSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const val = inputValue.trim() || aiAnswer.trim();
-    if (!val) {
-      setError('Please enter an answer or let AI generate one.');
-      return;
-    }
-    setError('');
-    if (val === aiAnswer) {
-      interview.acceptAIAnswer(val);
-    } else {
-      interview.submitAnswer(val);
-    }
-    setAiAnswer('');
-    setInputValue('');
   }
 
   async function handleGenerateSpec() {
@@ -223,6 +183,18 @@ export default function InterviewPage() {
               </p>
               <p className="mt-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
                 Credits coming soon.
+              </p>
+            </div>
+          )}
+
+          {/* Auto-fill error banner */}
+          {interview.autoFillError && (
+            <div
+              className="mb-6 p-4 rounded-lg border text-sm"
+              style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'var(--color-error)' }}
+            >
+              <p style={{ color: 'var(--color-text)' }}>
+                Something went wrong generating your spec. Try again.
               </p>
             </div>
           )}
@@ -482,106 +454,6 @@ export default function InterviewPage() {
               )}
             </button>
           </div>
-        </div>
-      </Shell>
-    );
-  }
-
-  // ─── Legacy: per-question interview (fallback if batch fails) ────
-
-  if (session.phase === 'interview') {
-    const q = interview.currentQuestion;
-    if (!q) return null;
-
-    return (
-      <Shell>
-        {/* Progress */}
-        <div className="w-full max-w-xl mx-auto mb-8">
-          <div className="flex justify-between text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-            <span>Question {session.currentQuestionIndex + 1} of {totalQuestions}</span>
-            <span>{interview.progress}%</span>
-          </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-2)' }}>
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${interview.progress}%`, background: 'var(--color-accent)' }}
-            />
-          </div>
-        </div>
-
-        <div className="animate-fade-up max-w-xl w-full mx-auto">
-          <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: 'var(--color-accent)' }}>
-            {q.section}
-          </p>
-
-          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>
-            {q.text}
-          </h2>
-
-          {q.helpText && (
-            <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
-              {q.helpText}
-            </p>
-          )}
-
-          <form onSubmit={handleManualSubmit} className="space-y-4 mt-6">
-            <textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => {
-                setInputValue(e.target.value);
-                setAiAnswer('');
-              }}
-              placeholder="Your answer (or leave blank and let AI generate)…"
-              rows={4}
-              className="w-full rounded-xl p-4 text-sm resize-none border focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-              style={{
-                background: 'var(--color-surface)',
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text)',
-              }}
-            />
-
-            {aiAnswer && (
-              <div
-                className="p-4 rounded-xl border text-sm animate-fade-down"
-                style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)', color: 'var(--color-text)' }}
-              >
-                <p className="text-xs font-medium mb-2" style={{ color: 'var(--color-accent)' }}>AI suggestion</p>
-                <p className="whitespace-pre-wrap leading-relaxed">{aiAnswer}</p>
-                <button type="button" onClick={handleAcceptAI} className="mt-3 text-xs font-medium underline" style={{ color: 'var(--color-accent)' }}>
-                  Use this →
-                </button>
-              </div>
-            )}
-
-            {error && <p className="text-sm" style={{ color: 'var(--color-error)' }}>{error}</p>}
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleAIGenerate}
-                disabled={isGeneratingAnswer}
-                className="flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 border transition-colors disabled:opacity-50"
-                style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
-              >
-                {isGeneratingAnswer ? (
-                  <span className="dot-pulse flex gap-1.5"><span /><span /><span /></span>
-                ) : (
-                  <><Sparkles size={15} />AI suggest</>
-                )}
-              </button>
-
-              <button
-                type="submit"
-                className="flex-1 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
-                style={{ background: 'var(--color-accent)', color: '#fff' }}
-              >
-                {interview.isLastQuestion ? 'Finish' : 'Next'}
-                <ChevronRight size={15} />
-              </button>
-            </div>
-          </form>
         </div>
       </Shell>
     );

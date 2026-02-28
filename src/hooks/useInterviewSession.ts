@@ -133,7 +133,7 @@ export function useInterviewSession() {
         session.setPhase('review');
       } catch {
         setAutoFillError(true);
-        session.setPhase('interview'); // graceful fallback
+        session.setPhase('project_input');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

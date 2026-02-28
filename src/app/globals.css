@@ -24,9 +24,9 @@
     --color-bg: #f9f9f8;
     --color-surface: #ffffff;
     --color-surface-2: #f3f3f1;
-    --color-border: #e2e2df;
-    --color-text: #1a1a1a;
-    --color-text-muted: #737373;
+    --color-border: #d4d4d0;
+    --color-text: #111111;
+    --color-text-muted: #525252;
     --color-accent-subtle: rgba(99, 102, 241, 0.1);
   }
 }
@@ -36,9 +36,9 @@
   --color-bg: #f9f9f8;
   --color-surface: #ffffff;
   --color-surface-2: #f3f3f1;
-  --color-border: #e2e2df;
-  --color-text: #1a1a1a;
-  --color-text-muted: #737373;
+  --color-border: #d4d4d0;
+  --color-text: #111111;
+  --color-text-muted: #525252;
   --color-accent-subtle: rgba(99, 102, 241, 0.1);
 }
 

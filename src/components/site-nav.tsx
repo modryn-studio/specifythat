@@ -31,8 +31,8 @@ export function SiteNav() {
         <div className="flex items-center gap-4">
           <Link
             href="/specs"
-            className="text-sm transition-opacity hover:opacity-100"
-            style={{ color: 'var(--color-text-muted)', opacity: 0.8 }}
+            className="text-sm transition-colors"
+            style={{ color: 'var(--color-text-muted)' }}
           >
             My specs
           </Link>
