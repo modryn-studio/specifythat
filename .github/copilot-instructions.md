@@ -1,7 +1,9 @@
 # SpecifyThat — Copilot Context
 
 ## Who I Am
-Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat generates the context file your AI coding tool needs to understand a project. Describe a vague idea, answer 13 strategic questions (AI generates most answers), and get a `copilot-instructions.md` file ready to paste into your editor. Under 60 seconds. Built for solo builders who skip the planning step and start prompting with zero context.
+Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat generates the context file your AI coding tool needs to understand a project. Describe a vague idea, AI works through 13 strategic questions and returns a pre-filled review screen, edit anything that's wrong, generate. Under 60 seconds. Built for solo builders who skip the planning step and start prompting with zero context.
+
+**Status:** Live at [specifythat.com](https://specifythat.com). Registered on modrynstudio.com. Free tier is IP-based (5 specs/day). No billing until rate limit analytics show demand.
 
 ## Stack
 - Next.js 16 (App Router) with TypeScript
@@ -12,8 +14,8 @@ Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat gener
 - `openai` — LLM proxy calls (analyze-project, generate-answer, generate-spec, generate-project-description)
 - `lucide-react` — icons
 - CSS animations from `globals.css` — fade-in, fade-up, shimmer, dot-pulse (framer-motion removed in issue #6)
-- `zustand` — client-side state management with localStorage persistence (**not yet installed**)
-- `nanoid` — ID generation for specs and sessions (**not yet installed**)
+- `zustand` — client-side state management with localStorage persistence
+- `nanoid` — ID generation for specs and sessions
 - `nodemailer` + `resend` — feedback email and newsletter contacts
 
 ## Project Structure
@@ -82,7 +84,7 @@ export async function POST(req: Request) {
 **Target user:** Solo builders who have an idea and want to start coding — not write a spec. They know planning matters but skip it because it feels like homework. They want the output without the process. They don’t know what a copilot-instructions.md file is or why it matters — they just know their AI drifts off course without context.
 
 **Visual rules:**
-- Dark mode base (warm grays, ChatGPT-like palette) — no light mode toggle
+- Dark mode base (warm grays, ChatGPT-like palette) — light mode supported via system preference + manual toggle
 - Accent: Indigo (`#6366f1` primary, `#4f46e5` hover)
 - Font: Inter (body + headings) — NOT Geist. Inter is the decision. Align all references.
 - Motion: Purposeful only — progress animations during AI generation, fade-ins on phase transitions. Use CSS animations from globals.css. No framer-motion. No decorative motion.
@@ -144,6 +146,16 @@ analytics.track('event_name', { prop: value });
 Add a named method to `analytics.ts` for each distinct user action. Named methods are typed and discoverable — no magic strings scattered across 10 files.
 
 GA4 measurement ID is loaded via `NEXT_PUBLIC_GA_MEASUREMENT_ID` in `layout.tsx`.
+
+**Instrumented events (as of 2026-02-28):**
+- `interview_started` — user hits Start
+- `spec_generated` — spec successfully built
+- `spec_copied` / `spec_downloaded` — output actions
+- `rate_limit_hit` — 429 returned by any AI route; includes `route` param (custom dimension registered in GA4)
+- `rate_limit_shown` — rate limit banner rendered to user
+- `newsletter_signup` / `feedback_submit` — engagement
+
+**GA4 custom dimension:** `Route` (event-scoped, parameter: `route`) — registered manually to allow filtering `rate_limit_hit` by which endpoint was hit.
 
 ## Dev Server
 
