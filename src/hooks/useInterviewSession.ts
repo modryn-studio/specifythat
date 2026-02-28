@@ -305,6 +305,7 @@ export function useInterviewSession() {
     acceptAIAnswer,
     generateAnswer,
     generateSpec,
+    specAnotherPart: session.resetForNextUnit,
     clearSession: session.clear,
   };
 }

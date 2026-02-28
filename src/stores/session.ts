@@ -43,6 +43,7 @@ interface SessionState {
   updateAnswer: (questionText: string, patch: Partial<Answer>) => void;
   nextQuestion: () => void;
   setGeneratedSpec: (spec: string) => void;
+  resetForNextUnit: () => void;
   clear: () => void;
 }
 
@@ -60,6 +61,7 @@ type Actions = Pick<
   | 'updateAnswer'
   | 'nextQuestion'
   | 'setGeneratedSpec'
+  | 'resetForNextUnit'
   | 'clear'
 >;
 
@@ -175,6 +177,23 @@ export const useSessionStore = create<SessionState>((set) => {
           generatedSpec,
           phase: 'done' as InterviewPhase,
           completedAt: new Date().toISOString(),
+        };
+        persist(next);
+        return next;
+      }),
+
+    resetForNextUnit: () =>
+      set((s) => {
+        // Keep projectDescription + analysisResult — reset everything else
+        const next = {
+          ...s,
+          phase: 'unit_picker' as InterviewPhase,
+          selectedUnitId: null,
+          answers: [],
+          allAnswers: [],
+          currentQuestionIndex: 0,
+          generatedSpec: null,
+          completedAt: null,
         };
         persist(next);
         return next;

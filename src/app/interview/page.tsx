@@ -438,7 +438,7 @@ export default function InterviewPage() {
             Your project has multiple parts.
           </h2>
           <p className="text-sm mb-8" style={{ color: 'var(--color-text-muted)' }}>
-            Pick one to spec first. You can always come back for the others.
+            Pick one to spec first. You can generate a context file for each part.
           </p>
           <div className="space-y-3">
             {units.map((unit) => (
@@ -757,6 +757,16 @@ export default function InterviewPage() {
               <RotateCcw size={14} />
               Start over
             </button>
+            {session.analysisResult?.type === 'multiple' && (
+              <button
+                onClick={() => interview.specAnotherPart()}
+                className="flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                <Layers size={14} />
+                Spec another part
+              </button>
+            )}
             <a
               href="/specs"
               className="text-sm underline"
