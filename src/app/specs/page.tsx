@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Search, Trash2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useSpecsStore } from '@/stores/specs';
@@ -12,6 +12,13 @@ export default function SpecsPage() {
   const [query, setQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const filtered = specs.filter(
     (s) =>
