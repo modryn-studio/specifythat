@@ -17,7 +17,7 @@ function getAnswerForSection(answers: Answer[], sectionNumber: number): string[]
 }
 
 /**
- * Build a copilot-instructions.md file from the 13 interview answers.
+ * Build a context file from the 13 interview answers.
  *
  * Output format matches the Modryn Studio boilerplate structure:
  * structured context that AI coding tools consume — not a traditional

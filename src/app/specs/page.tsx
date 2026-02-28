@@ -25,7 +25,7 @@ export default function SpecsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${entry.projectName.toLowerCase().replace(/\s+/g, '-')}-copilot-instructions.md`;
+    a.download = `${entry.projectName.toLowerCase().replace(/\s+/g, '-')}-ai-context.md`;
     a.click();
     URL.revokeObjectURL(url);
     analytics.specDownloaded();

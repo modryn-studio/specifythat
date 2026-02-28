@@ -37,7 +37,7 @@ export async function POST(req: Request): Promise<Response> {
     const baseSpec = buildSpecFromAnswers(answers);
 
     const systemPrompt = `You are an expert at writing context files for AI coding tools (like GitHub Copilot, Cursor, Claude).
-Your task is to take a draft copilot-instructions.md file and polish it into a clean, professional document
+Your task is to take a draft context file and polish it into a clean, professional document
 that an AI coding assistant will read to understand a project.
 
 Guidelines:
@@ -52,7 +52,7 @@ Guidelines:
 - Do NOT add boilerplate sections like API Route Logging, Analytics, Dev Server, Code Style — those come from the user's own boilerplate
 - Output valid markdown`;
 
-    const userPrompt = `Here's a draft copilot-instructions.md file. Polish it into a clean, professional context file while keeping the same structure:
+    const userPrompt = `Here's a draft context file. Polish it into a clean, professional context file while keeping the same structure:
 
 ${baseSpec}
 

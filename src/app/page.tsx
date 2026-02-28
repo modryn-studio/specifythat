@@ -54,7 +54,7 @@ export default function HomePage() {
           <FeatureCard
             icon={<FileText size={20} />}
             title="Paste-ready output"
-            body="A copilot-instructions.md file. Drop it in your project and your AI tool reads it automatically."
+            body="A context file your AI tool actually reads. Works with Copilot, Cursor, Claude Code, Windsurf, and more."
           />
           <FeatureCard
             icon={<Lock size={20} />}

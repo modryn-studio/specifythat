@@ -40,7 +40,7 @@ export async function POST(req: Request): Promise<Response> {
       .join('\n\n');
 
     const systemPrompt = `You are a senior product engineer helping a solo builder create context files for their AI coding tool.
-Given the project description below, answer all 13 questions. Your answers will be assembled into a copilot-instructions.md file — structured context that AI coding assistants read to understand a project.
+Given the project description below, answer all 13 questions. Your answers will be assembled into a context file — structured context that AI coding assistants read to understand a project.
 
 Be specific, practical, and opinionated. Write as if you're filling in a project brief that another engineer (or AI) needs to start building immediately.
 Keep answers focused on what a solo developer can ship in 1-4 weeks.
