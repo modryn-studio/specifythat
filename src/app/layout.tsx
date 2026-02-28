@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    // Serve the correct logomark for each color scheme
-    // icon-light.png = black logomark (light browser UI)
-    // icon-dark.png  = white logomark (dark browser UI)
+    // SVG favicon with embedded CSS handles light/dark automatically in Chrome + Firefox
+    // PNG pair is the fallback for Safari (which ignores SVG media queries)
     icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/icon-light.png', media: '(prefers-color-scheme: light)', type: 'image/png' },
       { url: '/icon-dark.png',  media: '(prefers-color-scheme: dark)',  type: 'image/png' },
     ],
