@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, Search, Trash2, FileText } from 'lucide-react';
+import { Download, Search, Trash2, FileText, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { useSpecsStore } from '@/stores/specs';
+import { useSessionStore } from '@/stores/session';
 import { SpecEntry } from '@/lib/types';
 import { analytics } from '@/lib/analytics';
 
 export default function SpecsPage() {
   const { specs, removeSpec, clearAll } = useSpecsStore();
+  const session = useSessionStore();
   const [query, setQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -77,6 +79,41 @@ export default function SpecsPage() {
       className="min-h-dvh px-4 py-16 max-w-3xl mx-auto"
       style={{ background: 'var(--color-bg)' }}
     >
+      {/* Multi-part resume banner */}
+      {(() => {
+        if (session.phase !== 'done') return null;
+        if (session.analysisResult?.type !== 'multiple') return null;
+        const totalUnits = session.analysisResult.units.length;
+        const completedIds = session.completedUnitIds ?? [];
+        // current unit not yet in completedIds — add 1 for it
+        const remaining = totalUnits - completedIds.length - 1;
+        if (remaining <= 0) return null;
+        const projectName = session.projectDescription
+          ? session.projectDescription.slice(0, 60).split('.')[0]
+          : 'your project';
+        return (
+          <div
+            className="mb-8 p-4 rounded-xl border flex items-center justify-between gap-4 text-sm"
+            style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}
+          >
+            <div className="flex items-center gap-3">
+              <Layers size={16} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+              <span style={{ color: 'var(--color-text)' }}>
+                {remaining} more part{remaining > 1 ? 's' : ''} to spec for{' '}
+                <span className="font-medium">{projectName}</span>.
+              </span>
+            </div>
+            <Link
+              href="/interview"
+              className="font-medium underline shrink-0"
+              style={{ color: 'var(--color-accent)' }}
+            >
+              Continue →
+            </Link>
+          </div>
+        );
+      })()}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>

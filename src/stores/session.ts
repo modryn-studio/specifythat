@@ -27,6 +27,9 @@ interface SessionState {
   // All answers generated at once (auto_filling phase → review phase)
   allAnswers: Answer[];
 
+  // Multi-unit tracking: IDs of units whose spec has been generated
+  completedUnitIds: number[];
+
   // Timestamps (ISO strings)
   startedAt: string | null;
   completedAt: string | null;
@@ -75,6 +78,7 @@ const INITIAL: Omit<SessionState, keyof Actions> = {
   currentQuestionIndex: 0,
   generatedSpec: null,
   allAnswers: [],
+  completedUnitIds: [],
   startedAt: null,
   completedAt: null,
 };
@@ -185,6 +189,11 @@ export const useSessionStore = create<SessionState>((set) => {
     resetForNextUnit: () =>
       set((s) => {
         // Keep projectDescription + analysisResult — reset everything else
+        // Mark the just-completed unit so unit_picker can show it as done
+        const completedUnitIds =
+          s.selectedUnitId !== null
+            ? [...(s.completedUnitIds ?? []), s.selectedUnitId]
+            : (s.completedUnitIds ?? []);
         const next = {
           ...s,
           phase: 'unit_picker' as InterviewPhase,
@@ -194,6 +203,7 @@ export const useSessionStore = create<SessionState>((set) => {
           currentQuestionIndex: 0,
           generatedSpec: null,
           completedAt: null,
+          completedUnitIds,
         };
         persist(next);
         return next;

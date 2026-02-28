@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Copy, Download, FileText, Layers, RotateCcw, Sparkles, Target, Upload } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Copy, Download, FileText, Layers, RotateCcw, Sparkles, Target, Upload } from 'lucide-react';
 import { useInterviewSession } from '@/hooks/useInterviewSession';
 import { useSessionStore } from '@/stores/session';
 import { analytics } from '@/lib/analytics';
@@ -430,36 +430,86 @@ export default function InterviewPage() {
   if (session.phase === 'unit_picker') {
     const units =
       session.analysisResult?.type === 'multiple' ? session.analysisResult.units : [];
+    const completedIds = session.completedUnitIds ?? [];
+    const doneCount = completedIds.length;
+    const remaining = units.filter((u) => !completedIds.includes(u.id));
+
+    const heading =
+      doneCount === 0
+        ? 'Your project has multiple parts.'
+        : doneCount === units.length - 1
+          ? 'One part left.'
+          : `${doneCount} of ${units.length} parts done.`;
+
+    const subheading =
+      doneCount === 0
+        ? 'Pick one to spec first. You can generate a context file for each part.'
+        : 'Pick the next part to spec.';
 
     return (
       <Shell>
         <div className="animate-fade-up max-w-xl w-full mx-auto">
           <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>
-            Your project has multiple parts.
+            {heading}
           </h2>
           <p className="text-sm mb-8" style={{ color: 'var(--color-text-muted)' }}>
-            Pick one to spec first. You can generate a context file for each part.
+            {subheading}
           </p>
           <div className="space-y-3">
-            {units.map((unit) => (
-              <button
-                key={unit.id}
-                onClick={() => interview.selectUnit(unit.id)}
-                className="w-full text-left p-5 rounded-xl border transition-colors hover:border-indigo-500 cursor-pointer"
-                style={{
-                  background: 'var(--color-surface)',
-                  borderColor: 'var(--color-border)',
-                }}
-              >
-                <p className="font-semibold text-sm mb-1" style={{ color: 'var(--color-text)' }}>
-                  {unit.name}
-                </p>
-                <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  {unit.description}
-                </p>
-              </button>
-            ))}
+            {units.map((unit) => {
+              const isDone = completedIds.includes(unit.id);
+              return (
+                <button
+                  key={unit.id}
+                  onClick={() => !isDone && interview.selectUnit(unit.id)}
+                  disabled={isDone}
+                  className={`w-full text-left p-5 rounded-xl border transition-colors ${
+                    isDone
+                      ? 'opacity-50 cursor-default'
+                      : 'hover:border-indigo-500 cursor-pointer'
+                  }`}
+                  style={{
+                    background: 'var(--color-surface)',
+                    borderColor: isDone ? 'var(--color-border)' : 'var(--color-border)',
+                  }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-sm mb-1" style={{ color: 'var(--color-text)' }}>
+                      {unit.name}
+                    </p>
+                    {isDone && (
+                      <CheckCircle2
+                        size={16}
+                        className="shrink-0"
+                        style={{ color: 'var(--color-accent)' }}
+                      />
+                    )}
+                  </div>
+                  <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                    {unit.description}
+                  </p>
+                </button>
+              );
+            })}
           </div>
+
+          {/* All done — prompt to start a new project */}
+          {remaining.length === 0 && doneCount > 0 && (
+            <div className="mt-8 text-center">
+              <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>
+                All {doneCount} parts are specced. You&apos;re ready to build.
+              </p>
+              <button
+                onClick={() => {
+                  interview.clearSession();
+                }}
+                className="text-sm font-medium underline cursor-pointer"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                Start a new project
+              </button>
+            </div>
+          )}
         </div>
       </Shell>
     );
@@ -759,23 +809,31 @@ export default function InterviewPage() {
               <RotateCcw size={14} />
               Start over
             </button>
-            {session.analysisResult?.type === 'multiple' && (
-              <button
-                onClick={() => interview.specAnotherPart()}
-                className="flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                <Layers size={14} />
-                Spec another part
-              </button>
-            )}
-            <a
+            {(() => {
+              if (session.analysisResult?.type !== 'multiple') return null;
+              const totalUnits = session.analysisResult.units.length;
+              const completedIds = session.completedUnitIds ?? [];
+              // The current unit hasn't been added to completedUnitIds yet (that happens on resetForNextUnit)
+              const remainingCount = totalUnits - completedIds.length - 1; // subtract 1 for current
+              if (remainingCount <= 0) return null;
+              return (
+                <button
+                  onClick={() => interview.specAnotherPart()}
+                  className="flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  <Layers size={14} />
+                  Spec another part
+                </button>
+              );
+            })()}
+            <Link
               href="/specs"
               className="text-sm underline"
               style={{ color: 'var(--color-accent)' }}
             >
               View all files →
-            </a>
+            </Link>
           </div>
         </div>
       </Shell>
