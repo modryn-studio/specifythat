@@ -36,15 +36,7 @@ export const metadata: Metadata = {
     description: site.ogDescription,
     images: ['/og-image.png'],
   },
-  icons: {
-    // icon-light.png = black logomark (light browser UI)
-    // icon-dark.png  = white logomark (dark browser UI)
-    icon: [
-      { url: '/icon-light.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark.png',  type: 'image/png', media: '(prefers-color-scheme: dark)' },
-    ],
-    apple: '/apple-icon.png',
-  },
+  // favicon.ico auto-discovered from src/app/favicon.ico by Next.js
   robots: {
     index: true,
     follow: true,

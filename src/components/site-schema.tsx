@@ -20,7 +20,7 @@ export function SiteSchema() {
             '@type': 'Organization',
             name: site.name,
             url: site.url,
-            logo: `${site.url}/icon-light.png`,
+            logo: `${site.url}/og-image.png`,
             description: site.description,
             founder: {
               '@type': 'Person',

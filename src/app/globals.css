@@ -146,6 +146,15 @@ body {
 .mark-on-dark  { display: block; }
 .mark-on-light { display: none;  }
 
+/* Single SVG logomark — black SVG, inverted to white in dark mode (default), black in light mode */
+.mark-logo { filter: invert(1); }
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .mark-logo { filter: none; }
+}
+[data-theme="light"] .mark-logo { filter: none; }
+[data-theme="dark"]  .mark-logo { filter: invert(1); }
+
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .mark-on-dark  { display: none;  }
   :root:not([data-theme="dark"]) .mark-on-light { display: block; }

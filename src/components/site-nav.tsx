@@ -23,9 +23,7 @@ export function SiteNav() {
         style={{ color: 'var(--color-text)' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logomark-white.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-dark" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logomark.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-light" />
+        <img src="/brand/logomark.svg" alt="" aria-hidden="true" width={20} height={20} className="mark-logo" />
         SpecifyThat
       </Link>
 
