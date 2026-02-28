@@ -9,7 +9,7 @@ export const site = {
   description:
     'Get the context file your AI coding tool needs. Describe your idea, answer a few questions, and download a ready-to-use context file in 60 seconds. No account required.',
   // Longer form for social cards
-  ogTitle: 'SpecifyThat | Context Files for AI Coding Tools',
+  ogTitle: 'SpecifyThat | Context Files for Your AI Coding Tool',
   ogDescription:
     'Describe your idea. AI asks the right questions. Get a context file you can paste straight into your editor. Under 60 seconds, no signup.',
   founder: 'Luke Hanner',
