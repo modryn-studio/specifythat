@@ -25,8 +25,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-lg sm:text-xl mb-10 max-w-xl" style={{ color: 'var(--color-text-muted)' }}>
-          Describe your idea. AI asks the right questions. Get a structured context file you can paste straight
-          into your editor. In under 60 seconds.
+          Your AI coding tool drifts off course without context. Describe your idea — get the file that fixes that in 60 seconds.
         </p>
 
         <Link
@@ -49,7 +48,7 @@ export default function HomePage() {
           <FeatureCard
             icon={<Zap size={20} />}
             title="60 seconds"
-            body="Describe your idea, AI handles the rest. Your context file is ready in under a minute."
+            body="Describe your idea. AI handles all 13 questions. Your file is ready before you'd have started an outline."
           />
           <FeatureCard
             icon={<FileText size={20} />}
@@ -59,7 +58,7 @@ export default function HomePage() {
           <FeatureCard
             icon={<Lock size={20} />}
             title="Private by design"
-            body="Files save to your browser. Nothing stored on our servers. No account needed."
+            body="Nothing stored on our servers. Your descriptions, answers, and generated files never leave your browser."
           />
         </div>
       </section>
@@ -72,7 +71,7 @@ export default function HomePage() {
         <div className="space-y-6">
           {[
             ['Describe your project', 'A sentence or two is enough. Or attach a doc if you have one.'],
-            ['AI asks the right questions', 'We run through 13 structured questions. AI auto-fills the hard ones based on context.'],
+            ['AI fills in the answers', 'We run through 13 structured questions. AI auto-fills almost all of them based on your description. You review before generating.'],
             ['Get your file', 'Download or copy the finished context file. Drop it in your project and start building.'],
           ].map(([title, desc], i) => (
             <div key={i} className="flex gap-4">
