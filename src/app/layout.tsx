@@ -37,10 +37,7 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    icon: [
-      { url: '/icon-light.png', media: '(prefers-color-scheme: light)', type: 'image/png' },
-      { url: '/icon-dark.png', media: '(prefers-color-scheme: dark)', type: 'image/png' },
-    ],
+    // Next.js auto-discovers src/app/icon.png — no manual icon array needed
     apple: '/apple-icon.png',
   },
   robots: {

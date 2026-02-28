@@ -16,12 +16,16 @@ export function SiteNav() {
         background: 'var(--color-bg)',
       }}
     >
-      {/* Left: brand */}
+      {/* Left: brand lockup */}
       <Link
         href="/"
-        className="font-semibold text-sm tracking-tight"
+        className="flex items-center gap-2 font-semibold text-sm tracking-tight"
         style={{ color: 'var(--color-text)' }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/logomark-white.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-dark" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/logomark.png" alt="" aria-hidden="true" width={20} height={20} className="mark-on-light" />
         SpecifyThat
       </Link>
 

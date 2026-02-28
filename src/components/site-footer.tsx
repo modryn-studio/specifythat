@@ -20,11 +20,17 @@ export function SiteFooter() {
         style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg)' }}
       >
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          {/* Left: brand + tagline */}
+          {/* Left: brand lockup + tagline */}
           <div>
-            <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
-              SpecifyThat
-            </p>
+            <div className="flex items-center gap-2 mb-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/logomark-white.png" alt="" aria-hidden="true" width={22} height={22} className="mark-on-dark" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/logomark.png" alt="" aria-hidden="true" width={22} height={22} className="mark-on-light" />
+              <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                SpecifyThat
+              </p>
+            </div>
             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
               Context files for AI coding tools.
             </p>

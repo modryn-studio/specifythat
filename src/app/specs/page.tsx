@@ -81,13 +81,19 @@ export default function SpecsPage() {
     >
       {/* Multi-part resume banner */}
       {(() => {
-        if (session.phase !== 'done') return null;
         if (session.analysisResult?.type !== 'multiple') return null;
         const totalUnits = session.analysisResult.units.length;
         const completedIds = session.completedUnitIds ?? [];
-        // current unit not yet in completedIds — add 1 for it
-        const remaining = totalUnits - completedIds.length - 1;
+        // 'done': current unit not yet logged, subtract 1
+        // 'unit_picker': current unit already logged (or none done yet)
+        const remaining =
+          session.phase === 'done'
+            ? totalUnits - completedIds.length - 1
+            : totalUnits - completedIds.length;
+        // Only show if there's real progress AND parts remain
         if (remaining <= 0) return null;
+        if (session.phase !== 'done' && session.phase !== 'unit_picker') return null;
+        if (session.phase === 'unit_picker' && completedIds.length === 0) return null;
         const projectName = session.projectDescription
           ? session.projectDescription.slice(0, 60).split('.')[0]
           : 'your project';
