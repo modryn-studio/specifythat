@@ -25,7 +25,7 @@ export default function SpecsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${entry.projectName.toLowerCase().replace(/\s+/g, '-')}-spec.md`;
+    a.download = `${entry.projectName.toLowerCase().replace(/\s+/g, '-')}-copilot-instructions.md`;
     a.click();
     URL.revokeObjectURL(url);
     analytics.specDownloaded();
@@ -74,12 +74,12 @@ export default function SpecsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>
-            My specs
+            My files
           </h1>
           <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
             {specs.length === 0
-              ? 'No specs yet'
-              : `${specs.length} spec${specs.length === 1 ? '' : 's'} saved locally`}
+              ? 'No files yet'
+              : `${specs.length} file${specs.length === 1 ? '' : 's'} saved locally`}
           </p>
         </div>
 
@@ -116,17 +116,17 @@ export default function SpecsPage() {
         <div className="flex flex-col items-center justify-center py-24 text-center animate-fade-up">
           <FileText size={40} className="mb-4" style={{ color: 'var(--color-border)' }} />
           <p className="text-lg font-medium mb-2" style={{ color: 'var(--color-text)' }}>
-            No specs yet
+            No files yet
           </p>
           <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
-            Complete an interview and your spec will appear here.
+            Generate a context file and it will appear here.
           </p>
           <Link
             href="/interview"
             className="px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors"
             style={{ background: 'var(--color-accent)', color: '#fff' }}
           >
-            Start a spec
+            Start building
           </Link>
         </div>
       )}
@@ -142,7 +142,7 @@ export default function SpecsPage() {
             />
             <input
               type="text"
-              placeholder="Search specs…"
+              placeholder="Search files…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -157,7 +157,7 @@ export default function SpecsPage() {
           {/* List */}
           {filtered.length === 0 ? (
             <p className="text-sm text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
-              No specs match &quot;{query}&quot;
+              No files match &quot;{query}&quot;
             </p>
           ) : (
             <div className="space-y-3">
@@ -181,7 +181,7 @@ export default function SpecsPage() {
             {confirmClear ? (
               <div className="flex items-center gap-3">
                 <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  Delete all {specs.length} spec{specs.length === 1 ? '' : 's'}? This can&apos;t be undone.
+                  Delete all {specs.length} file{specs.length === 1 ? '' : 's'}? This can&apos;t be undone.
                 </p>
                 <button
                   onClick={() => {
@@ -207,7 +207,7 @@ export default function SpecsPage() {
                 className="text-sm transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
               >
-                Clear all specs
+                Clear all files
               </button>
             )}
           </div>

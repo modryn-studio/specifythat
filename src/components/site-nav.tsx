@@ -34,7 +34,7 @@ export function SiteNav() {
             className="text-sm transition-colors"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            My specs
+            My files
           </Link>
           {isHome && (
             <Link

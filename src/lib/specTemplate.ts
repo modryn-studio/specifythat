@@ -2,11 +2,6 @@ import { Answer } from './types';
 import { questions } from './questions';
 import { sanitizeProjectName } from './sanitize';
 
-interface SpecSection {
-  title: string;
-  content: string;
-}
-
 function getAnswerForSection(answers: Answer[], sectionNumber: number): string[] {
   const sectionQuestions = questions.filter((q) => q.sectionNumber === sectionNumber);
   const sectionAnswers: string[] = [];
@@ -21,115 +16,91 @@ function getAnswerForSection(answers: Answer[], sectionNumber: number): string[]
   return sectionAnswers;
 }
 
+/**
+ * Build a copilot-instructions.md file from the 13 interview answers.
+ *
+ * Output format matches the Modryn Studio boilerplate structure:
+ * structured context that AI coding tools consume — not a traditional
+ * spec or PRD.
+ */
 export function buildSpecFromAnswers(answers: Answer[]): string {
-  const sections: SpecSection[] = [];
+  const sections: string[] = [];
 
-  // Section 1: Project Title (sanitized)
+  // ─── Header ──────────────────────────────────────────────────
   const titleAnswers = getAnswerForSection(answers, 1);
-  const projectTitle = sanitizeProjectName(titleAnswers[0] || 'Untitled Project');
-  sections.push({
-    title: '1. Project Title',
-    content: `**${projectTitle}**`,
-  });
+  const projectName = sanitizeProjectName(titleAnswers[0] || 'Untitled Project');
+  sections.push(`# ${projectName} — Copilot Context`);
 
-  // Section 2: One-Paragraph Summary
+  // ─── Product ─────────────────────────────────────────────────
   const summaryAnswers = getAnswerForSection(answers, 2);
-  sections.push({
-    title: '2. One-Paragraph Summary',
-    content: summaryAnswers[0] || 'No summary provided.',
-  });
-
-  // Section 3: Primary Goal
   const goalAnswers = getAnswerForSection(answers, 3);
-  sections.push({
-    title: '3. Primary Goal',
-    content: goalAnswers[0] || 'No primary goal defined.',
-  });
+  const productLines: string[] = [];
+  if (summaryAnswers[0]) productLines.push(summaryAnswers[0]);
+  if (goalAnswers[0]) productLines.push(`\n**Primary goal:** ${goalAnswers[0]}`);
+  sections.push(`## Product\n${productLines.join('\n') || 'No description provided.'}`);
 
-  // Section 4: Constraints
+  // ─── Stack & Constraints ─────────────────────────────────────
   const constraintAnswers = getAnswerForSection(answers, 4);
-  sections.push({
-    title: '4. Constraints (Hard Rules)',
-    content:
-      constraintAnswers.length > 0
-        ? 'These are **non-negotiable**.\n\n' + constraintAnswers.map((a) => `- ${a}`).join('\n')
-        : 'No constraints defined.',
-  });
+  const apiAnswers = getAnswerForSection(answers, 8); // section 8 = Interfaces (APIs)
+  const stackLines: string[] = [];
+  if (constraintAnswers.length > 0) {
+    stackLines.push(...constraintAnswers);
+  }
+  // Pull API/service info from Q11 (sectionNumber 8, second question)
+  const apiServiceAnswer = apiAnswers[1]; // Q11 is the second question in section 8
+  if (apiServiceAnswer) {
+    stackLines.push(`\n**External services:**\n${apiServiceAnswer}`);
+  }
+  if (stackLines.length > 0) {
+    sections.push(`## Stack & Constraints\n${stackLines.join('\n')}`);
+  }
 
-  // Section 5: In-Scope Requirements
+  // ─── Core Features ──────────────────────────────────────────
   const requirementAnswers = getAnswerForSection(answers, 5);
-  sections.push({
-    title: '5. In-Scope Requirements',
-    content: requirementAnswers[0] || 'No requirements defined.',
-  });
+  if (requirementAnswers[0]) {
+    sections.push(`## Core Features (v1)\n${requirementAnswers[0]}`);
+  }
 
-  // Section 6: Explicit Non-Goals
+  // ─── Non-Goals ───────────────────────────────────────────────
   const nonGoalAnswers = getAnswerForSection(answers, 6);
-  sections.push({
-    title: '6. Explicit Non-Goals (Critical)',
-    content:
-      nonGoalAnswers.length > 0
-        ? 'What we are **not building**, even if it seems obvious:\n\n' + nonGoalAnswers[0]
-        : 'No non-goals defined.',
-  });
+  if (nonGoalAnswers[0]) {
+    sections.push(
+      `## Non-Goals\nWhat we are **not** building right now, even if it seems obvious:\n\n${nonGoalAnswers[0]}`
+    );
+  }
 
-  // Section 7: Data Model
+  // ─── Data Model ──────────────────────────────────────────────
   const dataModelAnswers = getAnswerForSection(answers, 7);
-  sections.push({
-    title: '7. Data Model',
-    content:
-      dataModelAnswers.length > 0
-        ? dataModelAnswers.join('\n\n### Relationships\n\n')
-        : 'No data model defined.',
-  });
+  if (dataModelAnswers.length > 0) {
+    const dataModelContent = dataModelAnswers[0] +
+      (dataModelAnswers[1] ? `\n\n**Relationships:**\n${dataModelAnswers[1]}` : '');
+    sections.push(`## Data Model\n${dataModelContent}`);
+  }
 
-  // Section 8: Interfaces
+  // ─── Route Map & User Flow ───────────────────────────────────
   const interfaceAnswers = getAnswerForSection(answers, 8);
-  sections.push({
-    title: '8. Interfaces',
-    content:
-      interfaceAnswers.length > 0
-        ? '### User Flow\n\n' +
-          interfaceAnswers[0] +
-          (interfaceAnswers[1] ? '\n\n### APIs & Services\n\n' + interfaceAnswers[1] : '')
-        : 'No interfaces defined.',
-  });
+  if (interfaceAnswers[0]) {
+    sections.push(`## Route Map & User Flow\n${interfaceAnswers[0]}`);
+  }
 
-  // Section 9: Execution Order
+  // ─── Build Sequence ──────────────────────────────────────────
   const executionAnswers = getAnswerForSection(answers, 9);
-  sections.push({
-    title: '9. Execution Order (Recommended)',
-    content: executionAnswers[0] || 'No build sequence defined.',
-  });
+  if (executionAnswers[0]) {
+    sections.push(`## Build Sequence\n${executionAnswers[0]}`);
+  }
 
-  // Section 10: Success Criteria
+  // ─── Success Criteria ────────────────────────────────────────
   const successAnswers = getAnswerForSection(answers, 10);
-  sections.push({
-    title: '10. Success Criteria',
-    content: successAnswers[0] || 'No success criteria defined.',
-  });
+  if (successAnswers[0]) {
+    sections.push(`## Success Criteria\n${successAnswers[0]}`);
+  }
 
-  // Build final spec
-  const header = `# Project Spec: ${titleAnswers[0] || 'Untitled Project'}
+  // ─── Footer ──────────────────────────────────────────────────
+  const filePath = '.github/copilot-instructions.md';
+  sections.push(
+    `---\n\n*Generated by [SpecifyThat](https://specifythat.com) on ${new Date().toLocaleDateString()}. ` +
+    `Paste this file into your editor as \`${filePath}\` or add it to your AI tool's context.*`
+  );
 
-This spec was generated by SpecifyThat — turn a vague idea into a build-ready spec in under 60 seconds.
-
-------------------------------------------------------------------------
-`;
-
-  const footer = `
-------------------------------------------------------------------------
-
-## Notes
-
-Review each section and adjust as needed before implementation.
-
-**Generated on**: ${new Date().toLocaleDateString()}
-`;
-
-  const body = sections
-    .map((s) => `## ${s.title}\n\n${s.content}`)
-    .join('\n\n------------------------------------------------------------------------\n\n');
-
-  return header + body + footer;
+  return sections.join('\n\n');
 }

@@ -1,7 +1,7 @@
 # SpecifyThat — Copilot Context
 
 ## Who I Am
-Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat turns a vague project idea into a build-ready spec document in under 60 seconds. It runs a 13-question interview, auto-generates most answers with AI, and outputs structured markdown ready to paste into any AI coding assistant. Built for solo builders and small teams who skip the planning step, get stuck, and need the output without the process.
+Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat generates the context file your AI coding tool needs to understand a project. Describe a vague idea, answer 13 strategic questions (AI generates most answers), and get a `copilot-instructions.md` file ready to paste into your editor. Under 60 seconds. Built for solo builders who skip the planning step and start prompting with zero context.
 
 ## Stack
 - Next.js 16 (App Router) with TypeScript
@@ -30,13 +30,13 @@ Key lib files:
 - `src/lib/storage.ts` — versioned localStorage wrapper (namespaced `specifythat:*`, schema migrations)
 - `src/lib/questions.ts` — 13 hardcoded questions with AI context
 - `src/lib/sanitize.ts` — gibberish detection, input validation
-- `src/lib/specTemplate.ts` — answer-to-spec markdown builder
+- `src/lib/specTemplate.ts` — answer-to-copilot-instructions builder
 - `src/lib/types.ts` — all TypeScript interfaces
 
 ## Route Map
 - `/`              → Landing page — hero, feature cards, CTA to start
 - `/interview`     → Main interview flow (client component, state machine)
-- `/specs`         → Spec history — all saved specs with search, re-download, export/import
+- `/specs`         → History — all saved context files with search, re-download, export/import
 - `/privacy`       → Privacy policy
 - `/terms`         → Terms of service
 
@@ -76,9 +76,9 @@ export async function POST(req: Request) {
 - Confident without being arrogant. The tool does the work; the copy just explains it.
 - Honest about limitations — state them plainly, never hide them
 - Never use: "powerful", "seamless", "revolutionary", "unlock", "AI-powered", "AI-first"
-- Lead with the outcome (build-ready spec in 60 seconds), not the technology
+- Lead with the outcome (context file in 60 seconds), not the technology
 
-**Target user:** Solo builders who have an idea and want to start coding — not write a spec. They know planning matters but skip it because it feels like homework. They want the output without the process.
+**Target user:** Solo builders who have an idea and want to start coding — not write a spec. They know planning matters but skip it because it feels like homework. They want the output without the process. They don’t know what a copilot-instructions.md file is or why it matters — they just know their AI drifts off course without context.
 
 **Visual rules:**
 - Dark mode base (warm grays, ChatGPT-like palette) — no light mode toggle
@@ -91,16 +91,16 @@ export async function POST(req: Request) {
 - Land → "Oh, this actually does the part I always skip"
 - Start → "That was easy — I just described my idea"
 - Generate → "It's asking the right questions. Better than I would."
-- Finish → "I have a spec I can actually use. That took 2 minutes."
+- Finish → "I have a file I can paste straight into my editor. That took 60 seconds."
 - Return → "I use this every time I start something new"
 
 **Copy reference:**
-- Hero: "Turn a vague idea into a build-ready spec in under 60 seconds."
-- CTA: "Start a spec"
-- Empty state: "Describe your project in a few sentences. We'll handle the rest."
-- Ideation mode: "Not sure what to build? We'll figure it out together."
-- Spec complete: "Your spec is ready. Copy it, download it, paste it into your AI tool."
-- Rate limit: "You've used your free specs today. Get credits to keep going."
+- Hero: "Get the context file your AI coding tool needs. In under 60 seconds."
+- CTA: "Start building"
+- Empty state: "Describe your project in a few sentences. We’ll handle the rest."
+- Ideation mode: "Not sure what to build? We’ll figure it out together."
+- Output ready: "Your file is ready. Copy it, download it, paste it into your editor."
+- Rate limit: "You’ve used your free generations today. Get credits to keep going."
 - Error: "Something went wrong. Try again."
 - Footer: "Your prompts never leave your device."
 

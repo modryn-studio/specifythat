@@ -30,6 +30,12 @@ export default function InterviewPage() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // Ideation mode state
+  const [isIdeationMode, setIsIdeationMode] = useState(false);
+  const [ideationAnswers, setIdeationAnswers] = useState({ problemFrustration: '', targetUser: '', category: '' });
+  const [isGeneratingIdeation, setIsGeneratingIdeation] = useState(false);
+  const [ideationError, setIdeationError] = useState('');
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -93,6 +99,35 @@ export default function InterviewPage() {
     reader.readAsText(file);
   }, []);
 
+  // ─── Ideation handler ───────────────────────────────────────────
+
+  async function handleIdeationSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ideationAnswers.problemFrustration && !ideationAnswers.targetUser && !ideationAnswers.category) {
+      setIdeationError('Fill in at least one field so we can help figure it out.');
+      return;
+    }
+    setIdeationError('');
+    setIsGeneratingIdeation(true);
+    try {
+      const res = await fetch('/api/generate-project-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ideationAnswers }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate description');
+      setInputValue(data.projectDescription ?? '');
+      setIsIdeationMode(false);
+      setIdeationAnswers({ problemFrustration: '', targetUser: '', category: '' });
+      setTimeout(() => textareaRef.current?.focus(), 60);
+    } catch {
+      setIdeationError('Something went wrong. Try again.');
+    } finally {
+      setIsGeneratingIdeation(false);
+    }
+  }
+
   // ─── Handlers ──────────────────────────────────────────────────
 
   async function handleProjectSubmit(e: React.FormEvent) {
@@ -122,13 +157,11 @@ export default function InterviewPage() {
 
   function handleDownloadSpec() {
     if (!session.generatedSpec) return;
-    const answers = session.allAnswers.length > 0 ? session.allAnswers : session.answers;
-    const projectName = answers.find((a) => a.question.includes('name'))?.answer || 'spec';
     const blob = new Blob([session.generatedSpec], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${projectName.toLowerCase().replace(/\s+/g, '-')}-spec.md`;
+    a.download = 'copilot-instructions.md';
     a.click();
     URL.revokeObjectURL(url);
     analytics.specDownloaded();
@@ -170,7 +203,7 @@ export default function InterviewPage() {
               style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'var(--color-error)' }}
             >
               <p style={{ color: 'var(--color-text)' }}>
-                You&apos;ve used your free specs today. Come back tomorrow —{' '}
+                You&apos;ve used your free generations today. Come back tomorrow —{' '}
                 <a
                   href="#"
                   className="underline"
@@ -206,7 +239,7 @@ export default function InterviewPage() {
               style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}
             >
               <span style={{ color: 'var(--color-text)' }}>
-                You have a spec ready to review.
+                You have a context file ready to review.
               </span>
               <button
                 onClick={() => session.setPhase('review')}
@@ -269,7 +302,7 @@ export default function InterviewPage() {
               style={{ background: 'var(--color-accent)', color: '#fff' }}
             >
               <Sparkles size={15} />
-              Generate my spec
+              Generate my context file
               <ChevronRight size={16} />
             </button>
           </form>
@@ -277,13 +310,102 @@ export default function InterviewPage() {
           <p className="mt-6 text-xs text-center" style={{ color: 'var(--color-text-muted)' }}>
             Not sure what to build?{' '}
             <button
-              onClick={() => interview.analyzeProject("I'm not sure yet")}
+              onClick={() => { setIsIdeationMode(true); setIdeationError(''); }}
               className="underline"
               style={{ color: 'var(--color-accent)' }}
             >
               Let&apos;s figure it out
             </button>
           </p>
+
+          {/* Ideation mode panel */}
+          {isIdeationMode && (
+            <div
+              className="mt-6 p-5 rounded-xl border animate-fade-up"
+              style={{ background: 'var(--color-surface)', borderColor: 'var(--color-accent)' }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                  Let&apos;s figure it out together
+                </p>
+                <button
+                  onClick={() => { setIsIdeationMode(false); setIdeationError(''); }}
+                  className="text-xs"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  Cancel
+                </button>
+              </div>
+              <form onSubmit={handleIdeationSubmit} className="space-y-3">
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                    What problem or frustration does it solve?
+                  </label>
+                  <input
+                    type="text"
+                    value={ideationAnswers.problemFrustration}
+                    onChange={(e) => setIdeationAnswers((a) => ({ ...a, problemFrustration: e.target.value }))}
+                    placeholder="e.g. I always forget to follow up on emails"
+                    className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                    style={{
+                      background: 'var(--color-bg)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                    Who is it for?
+                  </label>
+                  <input
+                    type="text"
+                    value={ideationAnswers.targetUser}
+                    onChange={(e) => setIdeationAnswers((a) => ({ ...a, targetUser: e.target.value }))}
+                    placeholder="e.g. Freelancers, small teams, students"
+                    className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                    style={{
+                      background: 'var(--color-bg)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                    What kind of thing is it? (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={ideationAnswers.category}
+                    onChange={(e) => setIdeationAnswers((a) => ({ ...a, category: e.target.value }))}
+                    placeholder="e.g. Web app, Chrome extension, CLI tool"
+                    className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                    style={{
+                      background: 'var(--color-bg)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
+                    }}
+                  />
+                </div>
+                {ideationError && (
+                  <p className="text-xs" style={{ color: 'var(--color-error)' }}>{ideationError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isGeneratingIdeation}
+                  className="w-full py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                  style={{ background: 'var(--color-accent)', color: '#fff' }}
+                >
+                  {isGeneratingIdeation ? (
+                    <span className="dot-pulse flex gap-1.5"><span /><span /><span /></span>
+                  ) : (
+                    <><Sparkles size={14} /> Generate my idea<ChevronRight size={14} /></>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </Shell>
     );
@@ -401,10 +523,10 @@ export default function InterviewPage() {
         <div className="animate-fade-up max-w-2xl w-full mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>
-              Review your spec
+              Review your answers
             </h2>
             <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              AI answered all {totalQuestions} questions based on your description. Edit any answer before generating.
+              AI answered all {totalQuestions} questions based on your description. Edit any answer before generating your context file.
             </p>
           </div>
 
@@ -436,7 +558,7 @@ export default function InterviewPage() {
         >
           <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {editedCount > 0 ? `${editedCount} answer${editedCount > 1 ? 's' : ''} edited` : 'All AI-generated — edit anything before building'}
+              {editedCount > 0 ? `${editedCount} answer${editedCount > 1 ? 's' : ''} edited` : 'All AI-generated — edit anything before generating'}
             </p>
             <button
               onClick={handleGenerateSpec}
@@ -449,7 +571,7 @@ export default function InterviewPage() {
               ) : (
                 <>
                   <Sparkles size={15} />
-                  Generate spec
+                  Generate context file
                 </>
               )}
             </button>
@@ -466,7 +588,7 @@ export default function InterviewPage() {
           <div className="dot-pulse flex gap-2">
             <span /><span /><span />
           </div>
-          <p style={{ color: 'var(--color-text-muted)' }}>Assembling your spec…</p>
+          <p style={{ color: 'var(--color-text-muted)' }}>Assembling your context file…</p>
         </div>
       </Shell>
     );
@@ -478,7 +600,7 @@ export default function InterviewPage() {
         <div className="animate-fade-up max-w-2xl w-full mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>
-              Your spec is ready.
+              Your file is ready.
             </h2>
             <div className="flex gap-2">
               <button
@@ -504,8 +626,21 @@ export default function InterviewPage() {
             </div>
           </div>
 
+          {/* File name label */}
           <div
-            className="rounded-xl border p-6 text-sm font-mono whitespace-pre-wrap overflow-auto max-h-[60vh] leading-relaxed mb-6"
+            className="flex items-center gap-2 px-4 py-2 rounded-t-xl border border-b-0 text-xs font-mono"
+            style={{
+              background: 'var(--color-surface-2)',
+              borderColor: 'var(--color-border)',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            <FileText size={12} />
+            copilot-instructions.md
+          </div>
+
+          <div
+            className="rounded-b-xl border p-6 text-sm font-mono whitespace-pre-wrap overflow-auto max-h-[60vh] leading-relaxed mb-6"
             style={{
               background: 'var(--color-surface)',
               borderColor: 'var(--color-border)',
@@ -515,18 +650,23 @@ export default function InterviewPage() {
             {session.generatedSpec}
           </div>
 
-          {/* Next step */}
+          {/* Where to put it */}
           <div
             className="rounded-xl border p-4 mb-6"
             style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)' }}
           >
             <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text)' }}>
-              Next step
+              Where to put this file
             </p>
             <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              Paste this into your favorite AI creator —{' '}
-              <span style={{ color: 'var(--color-text)' }}>Cursor, VS Code Copilot, Claude, ChatGPT, Bolt, v0,</span>{' '}or{' '}
-              <span style={{ color: 'var(--color-text)' }}>Emergent</span> — and start building.
+              Save it as{' '}
+              <code
+                className="px-1.5 py-0.5 rounded text-xs font-mono"
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text)' }}
+              >
+                .github/copilot-instructions.md
+              </code>{' '}
+              in your project root. Your AI coding tool reads this file automatically and uses it as context for every prompt.
             </p>
           </div>
 
@@ -547,7 +687,7 @@ export default function InterviewPage() {
               className="text-sm underline"
               style={{ color: 'var(--color-accent)' }}
             >
-              View all specs →
+              View all files →
             </a>
           </div>
         </div>
@@ -555,6 +695,8 @@ export default function InterviewPage() {
     );
   }
 
+  // Unknown / stale phase — reset and show project input
+  session.setPhase('project_input');
   return null;
 }
 

@@ -39,38 +39,41 @@ export async function POST(req: Request): Promise<Response> {
     // Build base spec from template  no content logged
     const baseSpec = buildSpecFromAnswers(answers);
 
-    const systemPrompt = `You are an expert at writing clear, actionable project specifications.
-Your task is to take a draft project spec and polish it into a clean, professional document.
+    const systemPrompt = `You are an expert at writing context files for AI coding tools (like GitHub Copilot, Cursor, Claude).
+Your task is to take a draft copilot-instructions.md file and polish it into a clean, professional document
+that an AI coding assistant will read to understand a project.
 
 Guidelines:
 - Keep the same structure and sections
 - Fix any grammar or formatting issues
-- Make sure requirements are specific and testable
-- Ensure constraints are clear and non-negotiable
+- Make sure features are specific and testable
+- Ensure constraints include concrete technologies and versions where appropriate
 - Add any obvious missing details based on context
-- Keep the tone direct and execution-focused
+- Keep the tone direct and execution-focused — this is a reference doc, not marketing copy
 - Do NOT add new sections
-- Do NOT make the spec longer than necessary
+- Do NOT make the file longer than necessary
+- Do NOT add boilerplate sections like API Route Logging, Analytics, Dev Server, Code Style — those come from the user's own boilerplate
 - Output valid markdown`;
 
-    const userPrompt = `Here's a draft project spec. Polish it into a clean, professional document while keeping the same structure:
+    const userPrompt = `Here's a draft copilot-instructions.md file. Polish it into a clean, professional context file while keeping the same structure:
 
 ${baseSpec}
 
-Return the polished spec in markdown format. Keep it concise and actionable.`;
+Return the polished file in markdown format. Keep it concise and actionable.`;
 
     // Proxy: forward to OpenAI  no prompt content logged
-    const message = await openai.chat.completions.create({
+    const message = await openai.responses.create({
       model: 'gpt-5-mini',
-      max_tokens: 4096,
-      messages: [
-        { role: 'system', content: systemPrompt },
+      reasoning: { effort: 'low' },
+      max_output_tokens: 25000,
+      input: [
+        { role: 'developer', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
     });
 
     // Fall back to unpolished base spec if OpenAI returns nothing
-    const spec = message.choices[0].message.content ?? baseSpec;
+    const spec = message.output_text ?? baseSpec;
 
     return log.end(ctx, Response.json({ spec }));
   } catch (error) {

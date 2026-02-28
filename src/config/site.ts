@@ -7,11 +7,11 @@ export const site = {
   url: 'https://specifythat.com',
   // Base description — used in <meta description>, manifest, JSON-LD
   description:
-    'Turn a vague idea into a build-ready spec in 60 seconds. Answer two questions — AI handles the rest. No account, no signup required.',
+    'Get the context file your AI coding tool needs. Describe your idea, answer a few questions, and get a copilot-instructions.md file in 60 seconds. No account required.',
   // Longer form for social cards
-  ogTitle: 'SpecifyThat | Turn Your Idea Into a Build-Ready Spec',
+  ogTitle: 'SpecifyThat | Context Files for AI Coding Tools',
   ogDescription:
-    'Stop skipping the spec. SpecifyThat interviews you, generates the answers, and outputs a structured document ready to paste into any AI coding tool.',
+    'Describe your idea. AI asks the right questions. Get a copilot-instructions.md file you can paste straight into your editor. Under 60 seconds, no signup.',
   founder: 'Luke Hanner',
   // Brand colors — indigo accent, warm dark base
   accent: '#6366f1',

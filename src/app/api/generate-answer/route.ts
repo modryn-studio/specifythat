@@ -89,16 +89,17 @@ The user said: "${userInput}"
 Provide a high-quality answer that they can use directly in their spec. Be specific and actionable.`;
 
     // Proxy: forward to OpenAI  no prompt content logged
-    const message = await openai.chat.completions.create({
+    const message = await openai.responses.create({
       model: 'gpt-5-mini',
-      max_tokens: 1024,
-      messages: [
-        { role: 'system', content: systemPrompt },
+      reasoning: { effort: 'low' },
+      max_output_tokens: 8000,
+      input: [
+        { role: 'developer', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
     });
 
-    const answer = message.choices[0].message.content ?? 'Unable to generate answer.';
+    const answer = message.output_text ?? 'Unable to generate answer.';
 
     return log.end(ctx, Response.json({ answer }));
   } catch (error) {

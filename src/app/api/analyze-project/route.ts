@@ -10,13 +10,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY ?? 'missing',
 });
 
-const analyzeProjectTool: OpenAI.Chat.ChatCompletionTool = {
+const analyzeProjectTool: OpenAI.Responses.FunctionTool = {
   type: 'function',
-  function: {
-    name: 'analyze_project',
-    description:
-      'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
-    parameters: {
+  name: 'analyze_project',
+  strict: false,
+  description:
+    'Analyze a project description and determine if it is a single buildable unit or multiple buildable units.',
+  parameters: {
       type: 'object',
       properties: {
         type: {
@@ -49,7 +49,6 @@ const analyzeProjectTool: OpenAI.Chat.ChatCompletionTool = {
       },
       required: ['type'],
     },
-  },
 };
 
 function buildAnalysisPrompt(userInput: string): string {
@@ -163,20 +162,21 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     // Proxy: forward to OpenAI  no prompt content logged
-    const message = await openai.chat.completions.create({
+    const message = await openai.responses.create({
       model: 'gpt-5-mini',
-      max_tokens: 2000,
+      reasoning: { effort: 'low' },
+      max_output_tokens: 10000,
       tools: [analyzeProjectTool],
-      tool_choice: { type: 'function', function: { name: 'analyze_project' } },
-      messages: [{ role: 'user', content: buildAnalysisPrompt(fullInput) }],
+      tool_choice: { type: 'function', name: 'analyze_project' },
+      input: [{ role: 'user', content: buildAnalysisPrompt(fullInput) }],
     });
 
-    const toolCall = message.choices[0].message.tool_calls?.[0];
-    if (!toolCall) {
+    const toolCallItem = message.output.find((item) => item.type === 'function_call');
+    if (!toolCallItem || toolCallItem.type !== 'function_call') {
       throw new Error('AI did not return structured analysis');
     }
 
-    const result = JSON.parse(toolCall.function.arguments) as AnalysisResult;
+    const result = JSON.parse(toolCallItem.arguments) as AnalysisResult;
 
     // Validate response shape
     if (result.type === 'single') {

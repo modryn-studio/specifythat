@@ -91,13 +91,14 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     // Proxy: forward to OpenAI  no prompt content logged
-    const response = await openai.chat.completions.create({
+    const response = await openai.responses.create({
       model: 'gpt-5-mini',
-      max_tokens: 500,
-      messages: [{ role: 'user', content: buildIdeationPrompt(ideationAnswers) }],
+      reasoning: { effort: 'low' },
+      max_output_tokens: 8000,
+      input: [{ role: 'user', content: buildIdeationPrompt(ideationAnswers) }],
     });
 
-    const generatedText = response.choices[0].message.content?.trim();
+    const generatedText = response.output_text?.trim();
 
     if (!generatedText) {
       throw new Error('Empty response from OpenAI');

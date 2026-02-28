@@ -84,6 +84,8 @@ function persist(state: Omit<SessionState, keyof Actions>) {
 export const useSessionStore = create<SessionState>((set) => {
   // Hydrate from localStorage on first access
   const saved = storageGet<Omit<SessionState, keyof Actions>>('session');
+  // Reset legacy 'interview' phase — that UI no longer exists
+  if (saved && saved.phase === 'interview') saved.phase = 'project_input';
   const initial = saved ?? { ...INITIAL };
 
   return {

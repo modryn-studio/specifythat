@@ -43,10 +43,16 @@ export async function POST(req: Request): Promise<Response> {
       .map((q, i) => `${i + 1}. [${q.section}] ${q.text}\n   Context: ${q.contextForAI}`)
       .join('\n\n');
 
-    const systemPrompt = `You are a senior product engineer helping a solo builder create a concise technical specification.
-Given the project description below, answer all 13 spec questions. Be specific, practical, and opinionated.
+    const systemPrompt = `You are a senior product engineer helping a solo builder create context files for their AI coding tool.
+Given the project description below, answer all 13 questions. Your answers will be assembled into a copilot-instructions.md file — structured context that AI coding assistants read to understand a project.
+
+Be specific, practical, and opinionated. Write as if you're filling in a project brief that another engineer (or AI) needs to start building immediately.
 Keep answers focused on what a solo developer can ship in 1-4 weeks.
 Do not reference the project description verbatim — synthesize and improve on it.
+
+For stack/constraint questions: recommend specific technologies, not categories.
+For feature questions: use concrete, testable language ("Users can X" not "Support for X").
+For data model questions: name real fields and types, not abstract descriptions.
 
 Project description: ${context}
 
@@ -56,17 +62,17 @@ No extra text, no markdown fences, no comments — just the raw JSON array.`;
 
     const userPrompt = `Questions to answer:\n\n${questionsList}`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
+    const completion = await openai.responses.create({
+      model: 'gpt-5-mini',
+      reasoning: { effort: 'low' },
+      max_output_tokens: 20000,
+      input: [
+        { role: 'developer', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: 0.7,
-      max_tokens: 3000,
     });
 
-    const raw = completion.choices[0]?.message?.content?.trim() ?? '[]';
+    const raw = completion.output_text?.trim() ?? '[]';
 
     let parsed: Array<{ questionId: number; answer: string }>;
     try {

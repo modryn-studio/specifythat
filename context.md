@@ -1,12 +1,18 @@
 # Project Context
 
 ## Product
-SpecifyThat is a conversational spec generator. A user describes a vague
-project idea and the tool interviews them through 13 strategic planning
-questions, auto-generates answers where the user doesn't know, analyzes
-whether the project is single or multi-unit, and outputs a build-ready
-specification document in under 60 seconds. The spec is formatted for
-direct paste into any AI coding assistant.
+SpecifyThat is a context file generator for AI coding tools. A user
+describes a vague project idea, the tool interviews them through 13
+strategic questions (AI-generates most answers), and outputs a
+`copilot-instructions.md` file — structured context that tells an AI
+coding tool everything it needs to know about the project. Describe an
+idea, get the file, paste it into your editor, start building. Under
+60 seconds.
+
+The output is NOT a traditional spec or PRD. It's the same file format
+that professional developers use to give AI tools project context:
+who the user is, what the product does, the stack, route map, data model,
+build sequence. One file that makes every AI prompt smarter.
 
 ## Target User
 Solo builders and small teams who have an idea but skip the planning step.
@@ -31,7 +37,7 @@ Stack additions deferred until demand proves they're needed:
 /src/lib/storage.ts     → Versioned localStorage wrapper (modeled on ProjectLoom)
 /src/lib/questions.ts   → 13 hardcoded questions with AI context
 /src/lib/sanitize.ts    → Gibberish detection, input validation
-/src/lib/specTemplate.ts → Answer-to-spec markdown builder
+/src/lib/specTemplate.ts → Answer-to-copilot-instructions builder
 /src/lib/types.ts       → All TypeScript interfaces
 /docs                   → Brand guide, roadmap, build log
 ```
@@ -39,7 +45,7 @@ Stack additions deferred until demand proves they're needed:
 ## Route Map
 - `/`              → Landing page — hero, feature cards, CTA to start
 - `/interview`     → Main interview flow (client component, state machine)
-- `/specs`         → Spec history — list of all saved specs with search/filter
+- `/specs`         → History — all saved context files with search, re-download, export/import
 - `/privacy`       → Privacy policy
 - `/terms`         → Terms of service
 

@@ -22,12 +22,12 @@ export default function HomePage() {
           className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 max-w-3xl"
           style={{ color: 'var(--color-text)' }}
         >
-          Turn a vague idea into a build-ready spec
+          Get the context file your AI coding tool needs
         </h1>
 
         <p className="text-lg sm:text-xl mb-10 max-w-xl" style={{ color: 'var(--color-text-muted)' }}>
-          Answer 13 questions. AI fills the hard ones. Get a structured spec you can paste straight
-          into your AI coding tool.
+          Describe your idea. AI asks the right questions. Get a structured context file you can paste straight
+          into your editor. In under 60 seconds.
         </p>
 
         <Link
@@ -36,7 +36,7 @@ export default function HomePage() {
           style={{ background: 'var(--color-accent)', color: '#fff' }}
         >
           <Zap size={18} />
-          Start a spec
+          Start building
         </Link>
 
         <p className="mt-4 text-sm" style={{ color: 'var(--color-text-muted)' }}>
@@ -50,17 +50,17 @@ export default function HomePage() {
           <FeatureCard
             icon={<Zap size={20} />}
             title="60 seconds"
-            body="Describe your idea, AI handles the rest. Most specs complete in under a minute."
+            body="Describe your idea, AI handles the rest. Your context file is ready in under a minute."
           />
           <FeatureCard
             icon={<FileText size={20} />}
             title="Paste-ready output"
-            body="Clean markdown. Copy it straight into Cursor, Claude, ChatGPT — whatever you use."
+            body="A copilot-instructions.md file. Drop it in your project and your AI tool reads it automatically."
           />
           <FeatureCard
             icon={<Lock size={20} />}
             title="Private by design"
-            body="Specs save to your browser. Nothing stored on our servers. No account needed."
+            body="Files save to your browser. Nothing stored on our servers. No account needed."
           />
         </div>
       </section>
@@ -74,7 +74,7 @@ export default function HomePage() {
           {[
             ['Describe your project', 'A sentence or two is enough. Or attach a doc if you have one.'],
             ['AI asks the right questions', 'We run through 13 structured questions. AI auto-fills the hard ones based on context.'],
-            ['Get your spec', 'Download or copy the finished spec. Paste it into your AI tool and start building.'],
+            ['Get your file', 'Download or copy the finished context file. Drop it in your project and start building.'],
           ].map(([title, desc], i) => (
             <div key={i} className="flex gap-4">
               <div
@@ -99,7 +99,7 @@ export default function HomePage() {
           className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg font-semibold text-base transition-colors"
           style={{ background: 'var(--color-accent)', color: '#fff' }}
         >
-          Start a spec
+          Start building
         </Link>
         <Link
           href="/specs"
@@ -107,7 +107,7 @@ export default function HomePage() {
           style={{ color: 'var(--color-text-muted)' }}
         >
           <RefreshCw size={14} />
-          View past specs
+          View saved files
         </Link>
       </section>
 
