@@ -4,7 +4,7 @@ description: Drafts a build log post for modrynstudio.com from this project's re
 agent: agent
 ---
 
-Run `git log --oneline -20` in the terminal to get the last 20 commits from this repo.
+First, use the GitHub MCP to list files in `content/log/` on `modryn-studio/modryn-studio-v2`. Find the most recent log file for this project (match by tag/slug). If one exists, note its date — then run `git log --oneline --after="YYYY-MM-DD"` to get only commits since that post. If no prior log exists, run `git log --oneline` to get the full history.
 
 Ask Luke: "Anything in that list I should skip, or any context I should know before drafting?"
 

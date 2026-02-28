@@ -21,7 +21,7 @@
 ## Promoted to GitHub issues
 
 - **[#12 — AI confidence review step after spec generation](https://github.com/modryn-studio/specifythat/issues/12)**
-- **[#13 — Add UI/design question to context file output](https://github.com/modryn-studio/specifythat/issues/13)**
+- **[#13 — Add UI/design constraints question to context file](https://github.com/modryn-studio/specifythat/issues/13)**
 
 ## Minor remaining
 
