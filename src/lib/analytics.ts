@@ -31,4 +31,6 @@ export const analytics = {
   specDownloaded: () => track('spec_downloaded'),
   // Demand signal — when >20% of daily users hit this, it's time to add billing
   rateLimitHit: (props: { route: string }) => track('rate_limit_hit', props),
+  // Fired when the rate limit banner is shown to a user — confirms the hit was surfaced
+  rateLimitShown: () => track('rate_limit_shown'),
 };

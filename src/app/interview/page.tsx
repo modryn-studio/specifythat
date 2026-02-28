@@ -55,6 +55,11 @@ export default function InterviewPage() {
     }
   }, [session.phase]);
 
+  // Track when the rate limit banner is shown to a user
+  useEffect(() => {
+    if (interview.isRateLimited) analytics.rateLimitShown();
+  }, [interview.isRateLimited]);
+
   // Animate progress bar during auto_filling phase
   useEffect(() => {
     if (session.phase === 'auto_filling') {

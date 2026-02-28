@@ -219,6 +219,14 @@ export function useInterviewSession() {
         });
 
         const data = await res.json();
+
+        if (res.status === 429) {
+          analytics.rateLimitHit({ route: 'generate-answer' });
+          setRateLimited(true);
+          session.setPhase('project_input');
+          return '';
+        }
+
         if (!res.ok) throw new Error(data.error || 'Generation failed');
 
         return data.answer as string;
@@ -257,6 +265,14 @@ export function useInterviewSession() {
       });
 
       const data = await res.json();
+
+      if (res.status === 429) {
+        analytics.rateLimitHit({ route: 'generate-spec' });
+        setRateLimited(true);
+        session.setPhase('project_input');
+        return;
+      }
+
       if (!res.ok) throw new Error(data.error || 'Spec generation failed');
 
       const spec: string = data.spec;
