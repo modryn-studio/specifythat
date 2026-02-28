@@ -89,14 +89,19 @@ export async function POST(req: Request): Promise<Response> {
     log.info(ctx.reqId, 'Email sent', { to: feedbackTo });
 
     // Add to Resend Contacts for newsletter signups (best-effort — never blocks the response)
-    // Contacts are global in Resend v2+ — no audience ID needed
+    // Uses RESEND_SEGMENT_ID to keep contacts segmented per project (same team, different segments)
     if (body.type === 'newsletter') {
       const resendKey = process.env.RESEND_API_KEY;
       if (resendKey) {
         try {
           const resend = new Resend(resendKey);
-          await resend.contacts.create({ email: body.email, unsubscribed: false });
-          log.info(ctx.reqId, 'Resend contact created');
+          const segmentId = process.env.RESEND_SEGMENT_ID;
+          await resend.contacts.create({
+            email: body.email,
+            unsubscribed: false,
+            ...(segmentId && { segments: [{ id: segmentId }] }),
+          });
+          log.info(ctx.reqId, 'Resend contact created', { segmentId });
         } catch (resendError) {
           // Non-fatal — inbox notification already sent, list add failed silently
           log.warn(ctx.reqId, 'Resend contact creation failed', { error: resendError });

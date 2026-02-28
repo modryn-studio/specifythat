@@ -6,7 +6,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 export function SiteNav() {
   const pathname = usePathname();
   const isInterview = pathname.startsWith('/interview');
-  const isHome = pathname === '/';
 
   return (
     <nav
@@ -30,21 +29,26 @@ export function SiteNav() {
       {!isInterview && (
         <div className="flex items-center gap-4">
           <Link
+            href="/how-it-works"
+            className="text-sm transition-colors hidden sm:inline"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            How it works
+          </Link>
+          <Link
             href="/specs"
             className="text-sm transition-colors"
             style={{ color: 'var(--color-text-muted)' }}
           >
             My files
           </Link>
-          {isHome && (
-            <Link
-              href="/interview"
-              className="text-sm px-3 py-1.5 rounded-md font-medium"
-              style={{ background: 'var(--color-accent)', color: '#fff' }}
-            >
-              Start a spec
-            </Link>
-          )}
+          <Link
+            href="/interview"
+            className="text-sm px-3 py-1.5 rounded-md font-medium"
+            style={{ background: 'var(--color-accent)', color: '#fff' }}
+          >
+            Start building
+          </Link>
           <ThemeToggle />
         </div>
       )}

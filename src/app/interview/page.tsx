@@ -28,6 +28,8 @@ export default function InterviewPage() {
   const [copied, setCopied] = useState(false);
   const [autoFillProgress, setAutoFillProgress] = useState(0);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [doneEmail, setDoneEmail] = useState('');
+  const [doneEmailStatus, setDoneEmailStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
   const [mounted, setMounted] = useState(false);
 
   // Ideation mode state
@@ -161,7 +163,8 @@ export default function InterviewPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'copilot-instructions.md';
+    // Generic name until issue #9 ships tool-specific filenames
+    a.download = 'ai-context.md';
     a.click();
     URL.revokeObjectURL(url);
     analytics.specDownloaded();
@@ -243,7 +246,7 @@ export default function InterviewPage() {
               </span>
               <button
                 onClick={() => session.setPhase('review')}
-                className="font-medium underline shrink-0"
+                className="font-medium underline shrink-0 cursor-pointer"
                 style={{ color: 'var(--color-accent)' }}
               >
                 Resume
@@ -298,7 +301,7 @@ export default function InterviewPage() {
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
               style={{ background: 'var(--color-accent)', color: '#fff' }}
             >
               <Sparkles size={15} />
@@ -311,7 +314,7 @@ export default function InterviewPage() {
             Not sure what to build?{' '}
             <button
               onClick={() => { setIsIdeationMode(true); setIdeationError(''); }}
-              className="underline"
+              className="underline cursor-pointer"
               style={{ color: 'var(--color-accent)' }}
             >
               Let&apos;s figure it out
@@ -330,7 +333,7 @@ export default function InterviewPage() {
                 </p>
                 <button
                   onClick={() => { setIsIdeationMode(false); setIdeationError(''); }}
-                  className="text-xs"
+                  className="text-xs cursor-pointer"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
                   Cancel
@@ -394,7 +397,7 @@ export default function InterviewPage() {
                 <button
                   type="submit"
                   disabled={isGeneratingIdeation}
-                  className="w-full py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                   style={{ background: 'var(--color-accent)', color: '#fff' }}
                 >
                   {isGeneratingIdeation ? (
@@ -442,7 +445,7 @@ export default function InterviewPage() {
               <button
                 key={unit.id}
                 onClick={() => interview.selectUnit(unit.id)}
-                className="w-full text-left p-5 rounded-xl border transition-colors hover:border-indigo-500"
+                className="w-full text-left p-5 rounded-xl border transition-colors hover:border-indigo-500 cursor-pointer"
                 style={{
                   background: 'var(--color-surface)',
                   borderColor: 'var(--color-border)',
@@ -563,7 +566,7 @@ export default function InterviewPage() {
             <button
               onClick={handleGenerateSpec}
               disabled={isSubmittingReview}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               style={{ background: 'var(--color-accent)', color: '#fff' }}
             >
               {isSubmittingReview ? (
@@ -605,7 +608,7 @@ export default function InterviewPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleCopySpec}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
                 style={{
                   background: copied ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
                   borderColor: copied ? 'var(--color-accent)' : 'var(--color-border)',
@@ -617,7 +620,7 @@ export default function InterviewPage() {
               </button>
               <button
                 onClick={handleDownloadSpec}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
                 style={{ background: 'var(--color-accent)', color: '#fff' }}
               >
                 <Download size={14} />
@@ -636,7 +639,7 @@ export default function InterviewPage() {
             }}
           >
             <FileText size={12} />
-            copilot-instructions.md
+            ai-context.md
           </div>
 
           <div
@@ -659,16 +662,88 @@ export default function InterviewPage() {
               Where to put this file
             </p>
             <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              Save it as{' '}
-              <code
-                className="px-1.5 py-0.5 rounded text-xs font-mono"
-                style={{ background: 'var(--color-surface)', color: 'var(--color-text)' }}
+              Drop it in your project root where your AI tool expects its context file.
+              The exact filename and location depends on which tool you use —{' '}
+              <a
+                href="/how-it-works#where-to-put-the-file"
+                className="underline"
+                style={{ color: 'var(--color-accent)' }}
               >
-                .github/copilot-instructions.md
-              </code>{' '}
-              in your project root. Your AI coding tool reads this file automatically and uses it as context for every prompt.
+                see the placement guide
+              </a>.
             </p>
           </div>
+
+          {/* Email prompt — subtle, post-success */}
+          {doneEmailStatus !== 'done' && (
+            <div
+              className="rounded-xl border p-4 mb-6"
+              style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+            >
+              <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
+                Want updates on new features?
+              </p>
+              <form
+                className="flex gap-2"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!doneEmail.trim() || doneEmailStatus === 'submitting') return;
+                  setDoneEmailStatus('submitting');
+                  try {
+                    const res = await fetch('/api/feedback', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ type: 'newsletter', email: doneEmail.trim() }),
+                    });
+                    if (!res.ok) throw new Error('Failed');
+                    setDoneEmailStatus('done');
+                    analytics.newsletterSignup();
+                  } catch (_err) {
+                    setDoneEmailStatus('error');
+                  }
+                }}
+              >
+                <input
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  value={doneEmail}
+                  onChange={(e) => setDoneEmail(e.target.value)}
+                  className="flex-1 px-3 py-1.5 rounded-lg border text-sm"
+                  style={{
+                    background: 'var(--color-bg)',
+                    borderColor: 'var(--color-border)',
+                    color: 'var(--color-text)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={doneEmailStatus === 'submitting'}
+                  className="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ background: 'var(--color-accent)', color: '#fff' }}
+                >
+                  {doneEmailStatus === 'submitting' ? 'Sending…' : 'Subscribe'}
+                </button>
+              </form>
+              {doneEmailStatus === 'error' && (
+                <p className="text-xs mt-2" style={{ color: 'var(--color-error)' }}>
+                  Something went wrong. Try again.
+                </p>
+              )}
+            </div>
+          )}
+          {doneEmailStatus === 'done' && (
+            <div
+              className="rounded-xl border p-4 mb-6 text-sm"
+              style={{
+                background: 'var(--color-accent-subtle)',
+                borderColor: 'var(--color-accent)',
+                color: 'var(--color-text-muted)',
+              }}
+            >
+              You&apos;re in. We&apos;ll email you when there&apos;s something worth sharing.
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <button
@@ -676,7 +751,7 @@ export default function InterviewPage() {
                 interview.clearSession();
                 setInputValue('');
               }}
-              className="flex items-center gap-2 text-sm transition-colors"
+              className="flex items-center gap-2 text-sm transition-colors cursor-pointer"
               style={{ color: 'var(--color-text-muted)' }}
             >
               <RotateCcw size={14} />

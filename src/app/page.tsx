@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { FileText, Zap, Lock, RefreshCw } from 'lucide-react';
+import { FileText, Zap, Lock, RefreshCw, ArrowRight } from 'lucide-react';
 import { site } from '@/config/site';
-import { NewsletterForm } from '@/components/newsletter-form';
 
 export const metadata: Metadata = {
   title: site.ogTitle,
@@ -90,6 +89,14 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+        <Link
+          href="/how-it-works"
+          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          Want the full picture? See how it works
+          <ArrowRight size={14} />
+        </Link>
       </section>
 
       {/* CTA bottom */}
@@ -110,31 +117,6 @@ export default function HomePage() {
           View saved files
         </Link>
       </section>
-
-      {/* Footer */}
-      <footer
-        className="px-6 py-10 border-t"
-        style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
-      >
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div>
-            <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text)' }}>
-              Stay in the loop
-            </p>
-            <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>
-              Updates when we ship something worth talking about. No spam.
-            </p>
-            <NewsletterForm />
-          </div>
-          <div className="flex flex-col items-end gap-2 text-xs">
-            <span>© {new Date().getFullYear()} SpecifyThat</span>
-            <div className="flex gap-4">
-              <Link href="/privacy" className="hover:underline">Privacy</Link>
-              <Link href="/terms" className="hover:underline">Terms</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

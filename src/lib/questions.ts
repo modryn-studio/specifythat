@@ -45,7 +45,7 @@ export const questions: Question[] = [
     id: 4,
     text: 'What are your hard constraints? (timeline, budget, team size, tech requirements)',
     contextForAI:
-      'Suggest realistic constraints for a solo/small team project. Include: timeline (1-4 weeks typical), budget (minimal/bootstrapped), team size (1-2 people), and any obvious tech constraints based on the project type. Be specific and actionable.',
+      'Suggest realistic constraints for a solo/small team project. Include: timeline (1-4 weeks typical), budget (minimal/bootstrapped), team size (1-2 people), and the recommended tech stack with explicit version numbers for every dependency (e.g. "Next.js 15", "Tailwind CSS v4", "TypeScript 5.x"). Never name a technology without a version — the user needs specific versions so their AI coding tool generates correct code, not outdated patterns.',
     section: 'Constraints',
     sectionNumber: 4,
   },
@@ -55,7 +55,7 @@ export const questions: Question[] = [
     id: 5,
     text: 'Any deployment, hosting, or infrastructure requirements?',
     contextForAI:
-      'Recommend simple, cost-effective deployment options. For web apps: Vercel/Netlify (frontend), Railway/Render (backend). For mobile: Expo for React Native. Always suggest free tier options first. Include scale assumptions (e.g., 1-100 users initially).',
+      'Recommend simple, cost-effective deployment options with specific runtime/platform versions where relevant. For web apps: Vercel/Netlify (frontend), Railway/Render (backend). For mobile: Expo for React Native — include the Expo SDK version. Always suggest free tier options first. Include scale assumptions (e.g. 1-100 users initially) and note the Node.js version the platform will use.',
     section: 'Constraints',
     sectionNumber: 4,
   },

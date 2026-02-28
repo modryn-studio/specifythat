@@ -87,7 +87,7 @@ export default function SpecsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportAll}
-              className="text-sm px-3 py-1.5 rounded-lg border transition-colors"
+              className="text-sm px-3 py-1.5 rounded-lg border transition-colors cursor-pointer"
               style={{
                 borderColor: 'var(--color-border)',
                 color: 'var(--color-text-muted)',
@@ -188,14 +188,14 @@ export default function SpecsPage() {
                     clearAll();
                     setConfirmClear(false);
                   }}
-                  className="text-sm font-medium px-3 py-1 rounded"
+                  className="text-sm font-medium px-3 py-1 rounded cursor-pointer"
                   style={{ color: 'var(--color-error)' }}
                 >
                   Yes, delete all
                 </button>
                 <button
                   onClick={() => setConfirmClear(false)}
-                  className="text-sm"
+                  className="text-sm cursor-pointer"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
                   Cancel
@@ -204,7 +204,7 @@ export default function SpecsPage() {
             ) : (
               <button
                 onClick={() => setConfirmClear(true)}
-                className="text-sm transition-colors"
+                className="text-sm transition-colors cursor-pointer"
                 style={{ color: 'var(--color-text-muted)' }}
               >
                 Clear all files
@@ -262,7 +262,7 @@ function SpecCard({
               e.stopPropagation();
               onDownload();
             }}
-            className="p-2 rounded-lg border transition-colors"
+            className="p-2 rounded-lg border transition-colors cursor-pointer"
             style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
             title="Download .md"
           >
@@ -273,7 +273,7 @@ function SpecCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="p-2 rounded-lg border transition-colors"
+            className="p-2 rounded-lg border transition-colors cursor-pointer"
             style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
             title="Delete"
           >

@@ -61,7 +61,7 @@ export function AnswerCard({ question, answer, isEdited, onSave }: AnswerCardPro
         {!editing && (
           <button
             onClick={handleEdit}
-            className="shrink-0 p-1.5 rounded-lg transition-colors hover:opacity-80"
+            className="shrink-0 p-1.5 rounded-lg transition-colors hover:opacity-80 cursor-pointer"
             style={{ color: 'var(--color-text-muted)' }}
             aria-label="Edit answer"
           >
@@ -89,7 +89,7 @@ export function AnswerCard({ question, answer, isEdited, onSave }: AnswerCardPro
           <div className="flex gap-2 justify-end">
             <button
               onClick={handleCancel}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer"
               style={{
                 borderColor: 'var(--color-border)',
                 color: 'var(--color-text-muted)',
@@ -102,7 +102,7 @@ export function AnswerCard({ question, answer, isEdited, onSave }: AnswerCardPro
             <button
               onClick={handleSave}
               disabled={!draft.trim()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
               style={{ background: 'var(--color-accent)', color: '#fff' }}
             >
               <Check size={12} />

@@ -36,9 +36,10 @@ Key lib files:
 ## Route Map
 - `/`              → Landing page — hero, feature cards, CTA to start
 - `/interview`     → Main interview flow (client component, state machine)
+- `/how-it-works`  → Education page — why context files matter, how SpecifyThat works, where to put the file
 - `/specs`         → History — all saved context files with search, re-download, export/import
 - `/privacy`       → Privacy policy
-- `/terms`         → Terms of service
+- `/terms`         → Terms of use
 
 ## Architecture Notes
 

@@ -3,12 +3,9 @@ import { AnalyzeProjectRequest, AnalysisResult } from '@/lib/types';
 import { isGibberishInput } from '@/lib/sanitize';
 import { createRouteLogger } from '@/lib/route-logger';
 import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
+import { getLLM } from '@/lib/llm';
 
 const log = createRouteLogger('analyze-project');
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY ?? 'missing',
-});
 
 const analyzeProjectTool: OpenAI.Responses.FunctionTool = {
   type: 'function',
@@ -161,9 +158,12 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
-    // Proxy: forward to OpenAI  no prompt content logged
-    const message = await openai.responses.create({
-      model: 'gpt-5-mini',
+    // Proxy: forward to LLM provider — no prompt content logged
+    const { client, model, provider } = getLLM('analyze-project');
+    log.info(ctx.reqId, 'LLM routing', { provider, model });
+
+    const message = await client.responses.create({
+      model,
       reasoning: { effort: 'low' },
       max_output_tokens: 10000,
       tools: [analyzeProjectTool],

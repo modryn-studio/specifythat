@@ -4,12 +4,9 @@ import { questions } from '@/lib/questions';
 import { isGibberishInput } from '@/lib/sanitize';
 import { createRouteLogger } from '@/lib/route-logger';
 import { getClientIP, isRateLimited, LIMITS } from '@/lib/rate-limit';
+import { getLLM } from '@/lib/llm';
 
 const log = createRouteLogger('generate-answer');
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY ?? 'missing',
-});
 
 export async function POST(req: Request): Promise<Response> {
   const ctx = log.begin();
@@ -88,9 +85,12 @@ The user said: "${userInput}"
 
 Provide a high-quality answer that they can use directly in their spec. Be specific and actionable.`;
 
-    // Proxy: forward to OpenAI  no prompt content logged
-    const message = await openai.responses.create({
-      model: 'gpt-5-mini',
+    // Proxy: forward to LLM provider — no prompt content logged
+    const { client, model, provider } = getLLM('generate-answer');
+    log.info(ctx.reqId, 'LLM routing', { provider, model });
+
+    const message = await client.responses.create({
+      model,
       reasoning: { effort: 'low' },
       max_output_tokens: 8000,
       input: [
