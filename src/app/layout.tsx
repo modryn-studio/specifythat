@@ -37,7 +37,13 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    // Next.js auto-discovers src/app/icon.png — no manual icon array needed
+    // Serve the correct logomark for each color scheme
+    // icon-light.png = black logomark (light browser UI)
+    // icon-dark.png  = white logomark (dark browser UI)
+    icon: [
+      { url: '/icon-light.png', media: '(prefers-color-scheme: light)', type: 'image/png' },
+      { url: '/icon-dark.png',  media: '(prefers-color-scheme: dark)',  type: 'image/png' },
+    ],
     apple: '/apple-icon.png',
   },
   robots: {
