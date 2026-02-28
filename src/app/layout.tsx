@@ -37,11 +37,12 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    // icon-light.png = black logomark (light browser UI)
-    // icon-dark.png  = white logomark (dark browser UI)
+    // sizes="any" on ICO makes Chrome deprioritize it in favour of the SVG below it.
+    // favicon.svg has embedded CSS: light = #111111, dark = #ffffff (via @media prefers-color-scheme).
+    // favicon.ico in /public/ handles direct /favicon.ico requests and very old browsers.
     icon: [
-      { url: '/icon-light.png', media: '(prefers-color-scheme: light)', type: 'image/png' },
-      { url: '/icon-dark.png',  media: '(prefers-color-scheme: dark)',  type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     apple: '/apple-icon.png',
   },
