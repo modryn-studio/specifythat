@@ -37,11 +37,9 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    // favicon.ico in /public/ (not /src/app/) handles bare /favicon.ico requests only.
-    // Chrome 93+ supports media on <link rel="icon"> — picks the correct PNG per color scheme.
-    // Firefox also supports this. Safari falls back to favicon.ico from /public/.
+    // icon-light.png = black logomark (light browser UI)
+    // icon-dark.png  = white logomark (dark browser UI)
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon-light.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
       { url: '/icon-dark.png',  type: 'image/png', media: '(prefers-color-scheme: dark)' },
     ],
