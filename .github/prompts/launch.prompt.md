@@ -125,13 +125,16 @@ Report PASS / WARN / MISSING for each.
 
 ## Step 2: Launch Day Checklist
 
-Go through these in order. Run `/log` first so all links in social posts resolve.
+Go through these in order.
 
-### Build Log — do this first
-Run `/log` to draft the launch post for modrynstudio.com. Merge it before the community posts go out so links don't 404.
+### 1. Build Log — do this first
+Run `/log` from this repo. It opens a PR against modryn-studio-v2. Merge it before posting anywhere so links don't 404.
 
-### Social Copy
-Run `/social` with the log post MDX or tool JSON to generate ready-to-paste copy for X, Reddit, shipordie.club, and dev.to.
+### 2. Update tool entry
+Run `/tool` from this repo. It opens a PR against modryn-studio-v2 to set status to `live`, add the URL, screenshot, and launch date. Merge alongside the log PR.
+
+### 3. Social copy — run from modryn-studio-v2
+After both PRs are merged, switch to the modryn-studio-v2 repo and run `/social` with the merged log post MDX or tool JSON. That repo holds the voice rules and brand guidelines — `/social` must run there, not here.
 
 ## Step 3: Validation
 Check these are live before posting anywhere:
