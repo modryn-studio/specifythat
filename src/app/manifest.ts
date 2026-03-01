@@ -12,24 +12,25 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: site.accent,
     icons: [
       {
-        // Primary mark — nearest to standard 512×512 square (any)
-        src: '/icon-dark.png',
-        sizes: '496x512',
+        // Standard 512×512 — used by Chrome and most Android launchers
+        src: '/icon-512.png',
+        sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        // Same mark declared as maskable so installable PWAs can crop it
-        src: '/icon-dark.png',
-        sizes: '496x512',
+        // 192×192 — Chrome's preferred smaller manifest size
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        // Maskable — filled bg + logo within 80% safe zone; Android can crop to circle/squircle
+        src: '/icon-maskable.png',
+        sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
-      },
-      {
-        src: '/og-image.png',
-        sizes: '1200x630',
-        type: 'image/png',
-        purpose: 'any',
       },
     ],
   };
