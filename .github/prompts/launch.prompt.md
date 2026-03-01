@@ -3,14 +3,11 @@ name: launch
 description: "Distribution checklist: sharing hooks, dynamic OG images, social footer, community posting guide."
 agent: ask
 ---
-# Launch
-
-Distribution
+# Launch Distribution
 
 Walk me through the distribution launch for this project. First fix what the codebase is missing, then audit what's in place, then guide me through where to post on launch day.
 
-Run this after `/seo` (which handles technical SEO).
-This covers getting eyes on the product — sharing hooks, social presence, and community posting.
+Run this after `/seo` (which handles technical SEO). This covers getting eyes on the product — sharing hooks, social presence, and community posting.
 
 ## Step 0: Auto-Fix Codebase
 
@@ -133,40 +130,8 @@ Go through these in order. Run `/log` first so all links in social posts resolve
 ### Build Log — do this first
 Run `/log` to draft the launch post for modrynstudio.com. Merge it before the community posts go out so links don't 404.
 
-### Ship or Die
-Post at https://shipordie.club — short, honest, what you built and why. Link to the live product.
-
-### X / Twitter
-Two posts that perform:
-1. One sentence what it does + link
-2. A thread: the problem → your attempt → what you built → what surprised you
-
-Put self-promotion in replies, not the main thread. Use the pre-filled share URL from the app as a template.
-
-### Dev.to
-Draft a post: "I built [product] in [X days] — here's what I used". Focus on decisions, not features. Tags: `showdev`, `webdev`, `buildinpublic`. Set the canonical URL to the modrynstudio.com log post if one exists.
-
-### Hacker News — Show HN
-If the product is genuinely useful to developers or makers:
-1. Title: `Show HN: [Product Name] — [one-line description]`
-2. Body: what it is, the problem, the tech. 3–4 sentences max.
-3. Link: the live product URL (not a blog post)
-4. Weekday, 8–10am ET for best visibility
-
-### Reddit
-Subreddits that accept launch posts:
-- r/SideProject — "I built X"
-- r/coolgithubprojects — if open source
-- r/webdev — if relevant to web devs
-
-Lead with what it does for them. Self-post format on most subs.
-
-### Product Hunt (optional)
-If you want PH traffic:
-1. Check https://www.producthunt.com — search to confirm it isn't already listed
-2. Needed: tagline (60 chars max), description (260 chars), 2+ screenshots or a video, thumbnail (240×240)
-3. Tuesday–Thursday for best traffic
-4. Ask first users to upvote on launch day — direct asks outperform broadcast
+### Social Copy
+Run `/social` with the log post MDX or tool JSON to generate ready-to-paste copy for X, Reddit, shipordie.club, and dev.to.
 
 ## Step 3: Validation
 Check these are live before posting anywhere:
