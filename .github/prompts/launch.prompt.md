@@ -108,6 +108,16 @@ const faqSchema = {
 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 ```
 
+**Sitemap `lastModified` dates** — open `sitemap.ts` and check whether any route uses `lastModified: new Date()`. If found, replace each occurrence with a static date matching when that page's content last meaningfully changed. Using `new Date()` tells Google every page changed on every crawl — it wastes crawl budget and degrades freshness signals:
+```ts
+// BAD — reports a new change on every crawl
+{ url: `${site.url}/about`, lastModified: new Date() }
+
+// GOOD — static date matching when the page content last changed
+{ url: `${site.url}/about`, lastModified: new Date('2025-01-01') }
+```
+For routes that resolve from MDX/JSON files, derive `lastModified` from each file's frontmatter `date` field. For the home page, use the date of the most recent meaningful content update. Ask the user to confirm dates before writing.
+
 Report what was created vs already existed.
 
 ## Step 1: Audit
@@ -120,6 +130,7 @@ Report what was created vs already existed.
 - [ ] Main flow success/done state has a share link
 - [ ] Educational/FAQ pages have FAQPage JSON-LD
 - [ ] `sitemap.ts` uses static `lastModified` dates (not `new Date()`)
+- [ ] Product screenshots referenced in `site.ts` or content JSON are rendered in the landing page (not just stored in `public/`)
 
 Report PASS / WARN / MISSING for each.
 
