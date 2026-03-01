@@ -52,7 +52,7 @@ export function EmailModal({ open, onClose }: EmailModalProps) {
       if (!res.ok) throw new Error();
       setState('done');
       analytics.newsletterSignup();
-    } catch (_err) {
+    } catch {
       setState('error');
     }
   };

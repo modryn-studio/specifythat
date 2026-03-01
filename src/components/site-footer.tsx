@@ -1,14 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { EmailModal } from '@/components/email-modal';
+import { FeedbackTrigger } from '@/components/feedback-trigger';
 
 export function SiteFooter() {
   const pathname = usePathname();
   const [showModal, setShowModal] = useState(false);
+
+  // Allow the mobile nav's 'Get updates' button to open the modal via event
+  useEffect(() => {
+    const handler = () => setShowModal(true);
+    window.addEventListener('open-email-modal', handler);
+    return () => window.removeEventListener('open-email-modal', handler);
+  }, []);
 
   // Hide footer during interview — zero distraction
   if (pathname.startsWith('/interview')) return null;
@@ -16,10 +24,10 @@ export function SiteFooter() {
   return (
     <>
       <footer
-        className="px-6 py-8 border-t"
+        className="px-4 sm:px-6 py-8 border-t"
         style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg)' }}
       >
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6" style={{ maxWidth: '1200px' }}>
           {/* Left: brand lockup + tagline */}
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -41,6 +49,7 @@ export function SiteFooter() {
             <Link href="/how-it-works" className="hover:underline">How it works</Link>
             <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/terms" className="hover:underline">Terms</Link>
+            <FeedbackTrigger />
           </nav>
 
           {/* Right: get updates + copyright */}

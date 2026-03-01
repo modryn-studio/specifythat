@@ -755,7 +755,7 @@ export default function InterviewPage() {
                     if (!res.ok) throw new Error('Failed');
                     setDoneEmailStatus('done');
                     analytics.newsletterSignup();
-                  } catch (_err) {
+                  } catch {
                     setDoneEmailStatus('error');
                   }
                 }}

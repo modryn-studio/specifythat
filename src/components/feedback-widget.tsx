@@ -1,11 +1,23 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 
 type WidgetState = 'idle' | 'open' | 'submitting' | 'done';
 
+/**
+ * Feedback widget — desktop: filing-cabinet side tab that slides out from the
+ * right edge. Mobile: slide-up bottom sheet triggered by FeedbackTrigger.
+ *
+ * Wire into layout.tsx:
+ *   import FeedbackWidget from '@/components/feedback-widget';
+ *   <FeedbackWidget /> as last child inside <body>
+ *
+ * Wire FeedbackTrigger into the footer for mobile open access:
+ *   import { FeedbackTrigger } from '@/components/feedback-trigger';
+ *   <FeedbackTrigger />
+ */
 export default function FeedbackWidget() {
   const [state, setState] = useState<WidgetState>('idle');
   const [message, setMessage] = useState('');
@@ -17,6 +29,13 @@ export default function FeedbackWidget() {
   useEffect(() => {
     if (state === 'open') textareaRef.current?.focus();
   }, [state]);
+
+  // Open via custom event — used by the mobile footer trigger
+  useEffect(() => {
+    const handler = () => setState('open');
+    window.addEventListener('open-feedback', handler);
+    return () => window.removeEventListener('open-feedback', handler);
+  }, []);
 
   // Auto-collapse 3s after success
   useEffect(() => {
@@ -67,145 +86,147 @@ export default function FeedbackWidget() {
 
   const isOpen = state === 'open' || state === 'submitting' || state === 'done';
 
-  return (
-    <div style={{ position: 'fixed', right: '24px', bottom: '24px', zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-      {/* Card */}
-      {isOpen && (
-        <div
-          style={{
-            width: '288px',
-            border: '1px solid var(--color-border)',
-            background: 'var(--color-surface)',
-            borderRadius: '12px',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-            overflow: 'hidden',
-          }}
-        >
-          <div
+  // Shared form body used in both mobile and desktop panels
+  const formBody = (
+    <div style={{ padding: '16px' }}>
+      {state === 'done' ? (
+        <p style={{ fontSize: '13px', color: 'var(--color-text)' }}>Thanks. Noted. 👊</p>
+      ) : (
+        <>
+          <textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="What's broken? What's missing? What do you need?"
+            disabled={state === 'submitting'}
+            rows={4}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px 16px',
-              borderBottom: '1px solid var(--color-border)',
+              width: '100%',
+              resize: 'none',
+              border: '1px solid var(--color-border)',
+              background: 'transparent',
+              padding: '12px',
+              fontSize: '13px',
+              color: 'var(--color-text)',
+              outline: 'none',
+              opacity: state === 'submitting' ? 0.5 : 1,
             }}
-          >
-            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'var(--color-text)' }}>
-              Feedback
-            </span>
+            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Email (optional — for a reply)"
+            disabled={state === 'submitting'}
+            style={{
+              width: '100%',
+              marginTop: '8px',
+              border: '1px solid var(--color-border)',
+              background: 'transparent',
+              padding: '10px 12px',
+              fontSize: '12px',
+              color: 'var(--color-text)',
+              outline: 'none',
+              opacity: state === 'submitting' ? 0.5 : 1,
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+          />
+          {error && <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--color-error, #ef4444)' }}>{error}</p>}
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
             <button
-              onClick={close}
-              aria-label="Close"
-              style={{ padding: '4px', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+              onClick={handleSubmit}
+              disabled={!message.trim() || state === 'submitting'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#fff',
+                background: !message.trim() || state === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-accent)',
+                border: 'none',
+                cursor: !message.trim() || state === 'submitting' ? 'not-allowed' : 'pointer',
+              }}
             >
-              <X size={14} />
+              <Send size={12} />
+              {state === 'submitting' ? 'Sending...' : 'Send'}
             </button>
           </div>
-          <div style={{ padding: '16px' }}>
-            {state === 'done' ? (
-              <p style={{ fontSize: '14px', color: 'var(--color-text)' }}>Thanks. Noted. 👊</p>
-            ) : (
-              <>
-                <textarea
-                  ref={textareaRef}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="What's broken? What's missing? What do you want?"
-                  disabled={state === 'submitting'}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    resize: 'none',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '8px',
-                    background: 'transparent',
-                    padding: '12px',
-                    fontSize: '13px',
-                    color: 'var(--color-text)',
-                    outline: 'none',
-                    opacity: state === 'submitting' ? 0.5 : 1,
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Email (optional — for a reply)"
-                  disabled={state === 'submitting'}
-                  style={{
-                    width: '100%',
-                    marginTop: '8px',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '8px',
-                    background: 'transparent',
-                    padding: '10px 12px',
-                    fontSize: '12px',
-                    color: 'var(--color-text)',
-                    outline: 'none',
-                    opacity: state === 'submitting' ? 0.5 : 1,
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                />
-                {error && (
-                  <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--color-error)' }}>{error}</p>
-                )}
-                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!message.trim() || state === 'submitting'}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '8px 16px',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: '#fff',
-                      background: !message.trim() || state === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-accent)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: !message.trim() || state === 'submitting' ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    <Send size={12} />
-                    {state === 'submitting' ? 'Sending...' : 'Send'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        </>
       )}
+    </div>
+  );
 
-      {/* Toggle button */}
+  const panelHeader = (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--color-border)' }}>
+      <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text)' }}>Feedback</span>
       <button
-        onClick={() => setState(isOpen ? 'idle' : 'open')}
-        aria-label={isOpen ? 'Close feedback' : 'Open feedback'}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '10px 16px',
-          fontSize: '12px',
-          fontWeight: 600,
-          color: '#fff',
-          background: 'var(--color-accent)',
-          border: 'none',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+        onClick={close}
+        aria-label="Close"
+        style={{ padding: '4px', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
       >
-        <MessageSquare size={14} />
-        Feedback
+        <X size={14} />
       </button>
     </div>
+  );
+
+  return (
+    <>
+      {/* ── Mobile: slide-up sheet from bottom, hidden on md+ ── */}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out md:hidden ${
+          isOpen ? 'translate-y-0' : 'translate-y-full'
+        }`}
+      >
+        {isOpen && <div className="fixed inset-0 -z-10 bg-black/20" onClick={close} />}
+        <div style={{ borderTop: '2px solid var(--color-border)', background: 'var(--color-bg)', boxShadow: '0 -8px 30px rgba(0,0,0,0.2)' }}>
+          {panelHeader}
+          {formBody}
+        </div>
+      </div>
+
+      {/* ── Desktop: filing-cabinet drawer from right edge, hidden on mobile ── */}
+      {/* Whole assembly translates together. Closed = shifted right by panel width (288px),
+          leaving only the tab visible at the viewport edge. Open = translate-x-0. */}
+      <div
+        className={`fixed top-1/2 right-0 z-50 hidden -translate-y-1/2 items-start transition-transform duration-300 ease-out md:flex ${
+          isOpen ? 'translate-x-0' : 'translate-x-72'
+        }`}
+      >
+        {/* Tab — leftmost, always the visible "handle" */}
+        <button
+          onClick={() => setState(isOpen ? 'idle' : 'open')}
+          aria-label={isOpen ? 'Close feedback' : 'Open feedback'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '12px 6px',
+            fontSize: '10px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--color-accent)',
+            background: 'var(--color-bg)',
+            border: '2px solid var(--color-border)',
+            borderRight: 'none',
+            cursor: 'pointer',
+            boxShadow: '-2px 0 8px rgba(0,0,0,0.1)',
+          }}
+        >
+          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Feedback</span>
+        </button>
+        {/* Panel — slides in with the tab */}
+        <div style={{ width: '288px', border: '2px solid var(--color-border)', background: 'var(--color-bg)', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+          {panelHeader}
+          {formBody}
+        </div>
+      </div>
+    </>
   );
 }
