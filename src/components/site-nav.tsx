@@ -58,6 +58,10 @@ export function SiteNav() {
               </Link>
             </nav>
 
+            <div className="mr-1">
+              <ThemeToggle />
+            </div>
+
             <Link
               href="/interview"
               className="hidden sm:inline-flex text-sm px-3 py-1.5 rounded-md font-medium"
@@ -65,10 +69,6 @@ export function SiteNav() {
             >
               Start building
             </Link>
-
-            <div className="ml-1">
-              <ThemeToggle />
-            </div>
 
             {/* Mobile: hamburger trigger */}
             <button
