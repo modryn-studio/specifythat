@@ -16,13 +16,13 @@ export const questions: Question[] = [
     },
   },
 
-  // Section 2: One-Paragraph Summary
+  // Section 2: Project Summary
   {
     id: 2,
     text: 'Describe your project. What does it do and who is it for?',
     contextForAI:
       "Generate a concise summary that captures the project's core value proposition. Focus on: what problem it solves, who the target user is, and what makes it valuable. Keep it under 50 words.",
-    section: 'One-Paragraph Summary',
+    section: 'Project Summary',
     sectionNumber: 2,
     allowFileUpload: true,
     fileTypes: ['.txt', '.md'],
