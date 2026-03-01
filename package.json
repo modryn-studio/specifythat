@@ -14,7 +14,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
     "nanoid": "^5.1.6",
-    "next": "16.0.10",
+    "next": "16.1.6",
     "nodemailer": "^8.0.1",
     "openai": "^4.96.0",
     "react": "19.2.1",
@@ -32,7 +32,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9",
-    "eslint-config-next": "16.0.10",
+    "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
