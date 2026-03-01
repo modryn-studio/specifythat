@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle2, ChevronRight, Copy, Download, FileText, Layers, RotateCcw, Sparkles, Target, Upload } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Copy, Download, FileText, Layers, RotateCcw, Sparkles, Target, Twitter, Upload } from 'lucide-react';
+import { site } from '@/config/site';
 import { useInterviewSession } from '@/hooks/useInterviewSession';
 import { useSessionStore } from '@/stores/session';
 import { analytics } from '@/lib/analytics';
@@ -814,6 +815,16 @@ export default function InterviewPage() {
               <RotateCcw size={14} />
               Start over
             </button>
+            <a
+              href={`https://x.com/intent/post?text=${encodeURIComponent("Just built my AI context file in 60 seconds with SpecifyThat. No more drifting AI — it finally knows what I'm building.")}&url=${encodeURIComponent(site.url)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm transition-colors"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <Twitter size={14} />
+              Share on X
+            </a>
             {(() => {
               if (session.analysisResult?.type !== 'multiple') return null;
               const totalUnits = session.analysisResult.units.length;
