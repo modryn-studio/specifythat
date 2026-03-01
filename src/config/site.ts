@@ -16,4 +16,12 @@ export const site = {
   // Brand colors — indigo accent, warm dark base
   accent: '#6366f1',
   bg: '#111111',
+  // Social profiles — used in footer links and Twitter card metadata
+  social: {
+    twitter: 'https://x.com/lukehanner',
+    twitterHandle: '@lukehanner',
+    github: 'https://github.com/modryn-studio/specifythat',
+    devto: 'https://dev.to/lukehanner',
+    shipordie: 'https://shipordie.club/lukehanner',
+  },
 } as const;

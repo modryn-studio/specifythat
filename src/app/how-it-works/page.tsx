@@ -3,14 +3,88 @@ import Link from 'next/link';
 import { Zap, FileText, Brain, FolderOpen, Eye } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'How it works',
+  title: {
+    absolute: 'How SpecifyThat Works — Context Files for Cursor, Claude Code, Copilot & Windsurf',
+  },
   description:
     'Why AI coding tools drift without context, what a context file does, and how SpecifyThat generates one in under 60 seconds — for Cursor, Claude Code, Copilot, Windsurf, and more.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Why does my AI coding tool give wrong or inconsistent suggestions?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Two main reasons: no project context, and a knowledge cutoff. Without knowing your stack, architecture, and conventions, AI tools guess — and often guess wrong. Context files fix both problems by briefing your AI before every session.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is a context file for AI coding tools?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A context file is a structured document that tells your AI coding tool what you’re building — your tech stack, architecture decisions, coding conventions, project structure, and constraints. Tools like GitHub Copilot, Cursor, Claude Code, and Windsurf read it at the start of every session.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How does SpecifyThat generate a context file?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'You describe your project in a sentence or two. SpecifyThat uses AI to work through 13 structured questions — stack, architecture, users, constraints, and non-goals — and pre-fills the answers. You review and adjust anything that’s off, then download the finished context file.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where do I put the context file in GitHub Copilot?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Save the file as .github/copilot-instructions.md in your project root. GitHub Copilot reads it automatically.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where do I put the context file in Cursor?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Save the file as .cursor/rules/context.mdc in your project root. AGENTS.md also works. Cursor loads it automatically.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where do I put the context file in Claude Code?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Save the file as CLAUDE.md in your project root. Claude Code auto-loads it at the start of every session.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where do I put the context file in Windsurf?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Save the file as .windsurfrules in your project root. Windsurf reads it automatically.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does SpecifyThat store my project descriptions or generated files?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Your answers are sent to our server only to generate AI responses — they are never stored, logged, or inspected. Your generated context files save to your browser’s localStorage only, never our servers.',
+      },
+    },
+  ],
 };
 
 export default function HowItWorksPage() {
   return (
     <main className="min-h-dvh" style={{ background: 'var(--color-bg)' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       {/* Hero */}
       <section className="px-6 pt-24 pb-16 max-w-3xl mx-auto text-center animate-fade-up">
         <h1

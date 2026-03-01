@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell } from 'lucide-react';
+import { Bell, Github, Twitter } from 'lucide-react';
 import { EmailModal } from '@/components/email-modal';
 import { FeedbackTrigger } from '@/components/feedback-trigger';
+import { site } from '@/config/site';
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -44,13 +45,25 @@ export function SiteFooter() {
             </p>
           </div>
 
-          {/* Center: links */}
-          <nav className="flex items-center gap-5 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            <Link href="/how-it-works" className="hover:underline">How it works</Link>
-            <Link href="/privacy" className="hover:underline">Privacy</Link>
-            <Link href="/terms" className="hover:underline">Terms</Link>
-            <FeedbackTrigger />
-          </nav>
+          {/* Center: links + social */}
+          <div className="flex flex-col gap-3">
+            <nav className="flex items-center gap-5 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              <Link href="/how-it-works" className="hover:underline">How it works</Link>
+              <Link href="/privacy" className="hover:underline">Privacy</Link>
+              <Link href="/terms" className="hover:underline">Terms</Link>
+              <FeedbackTrigger />
+            </nav>
+            <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              <a href={site.social.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline">
+                <Twitter size={12} />X
+              </a>
+              <a href={site.social.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline">
+                <Github size={12} />GitHub
+              </a>
+              <a href={site.social.devto} target="_blank" rel="noopener noreferrer" className="hover:underline">Dev.to</a>
+              <a href={site.social.shipordie} target="_blank" rel="noopener noreferrer" className="hover:underline">Ship or Die</a>
+            </div>
+          </div>
 
           {/* Right: get updates + copyright */}
           <div className="flex flex-col items-start sm:items-end gap-2">
@@ -63,7 +76,15 @@ export function SiteFooter() {
               Get updates
             </button>
             <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              © {new Date().getFullYear()} SpecifyThat
+              © {new Date().getFullYear()} SpecifyThat ·{' '}
+              <a
+                href="https://modrynstudio.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                Modryn Studio
+              </a>
             </span>
           </div>
         </div>
