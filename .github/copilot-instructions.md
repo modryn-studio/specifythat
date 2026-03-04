@@ -3,7 +3,7 @@
 ## Who I Am
 Luke Hanner — solo builder, shipping AI-assisted tools fast. SpecifyThat generates the context file your AI coding tool needs to understand a project. Describe a vague idea, AI works through 13 strategic questions and returns a pre-filled review screen, edit anything that's wrong, generate. Under 60 seconds. Built for solo builders who skip the planning step and start prompting with zero context.
 
-**Status:** Live at [specifythat.com](https://specifythat.com). Registered on modrynstudio.com. Free tier is IP-based (5 specs/day). No billing until rate limit analytics show demand.
+**Status:** Live at [specifythat.com](https://specifythat.com). Registered on modrynstudio.com. Free tier is IP-based (3 specs/day). No billing until rate limit analytics show demand.
 
 ## Stack
 - Next.js 16 (App Router) with TypeScript
@@ -58,18 +58,30 @@ Key lib files:
 
 **Persistence:** `localStorage` only, namespaced as `specifythat:*`. Specs survive refresh and browser close. Lost only on "clear site data". See `src/lib/storage.ts`.
 
-**Free trial:** IP-based rate limiting (e.g. 5 specs/day). No billing until analytics show sustained rate limit hits. Stripe credits are a future feature, not current.
+**Free trial:** IP-based rate limiting (3 specs/day, controlled via `RATE_LIMIT_PER_DAY` env var). No billing until analytics show sustained rate limit hits. Stripe credits are a future feature, not current.
 
 **API route proxy shape:**
 ```typescript
 // Every AI route follows this pattern
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   const ctx = log.begin();
   try {
     const body = await req.json(); // parse structure only — never log content
     const ip = getClientIP(req);
-    if (isRateLimited(ip)) return Response.json({ error: 'Rate limit exceeded' }, { status: 429 });
-    const result = await openai.chat.completions.create({ ... });
+    if (isRateLimited('route-name', ip, LIMITS['route-name'])) {
+      return log.end(ctx, Response.json({ error: 'Rate limit exceeded' }, { status: 429 }));
+    }
+    const { client, model, provider } = getLLM('route-name');
+    const response = await client.responses.create({
+      model,
+      reasoning: { effort: 'low' },
+      max_output_tokens: 8000,
+      input: [
+        { role: 'developer', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    });
+    const result = response.output_text;
     return log.end(ctx, Response.json({ result })); // log metadata only, never content
   } catch (error) {
     log.err(ctx, error);
@@ -78,12 +90,28 @@ export async function POST(req: Request) {
 }
 ```
 
-**LLM routing.** Never instantiate `new OpenAI()` directly in a route. Always use `getLLM(route)` from `@/lib/llm` — it returns the right client, model, and provider based on the route name. Groq handles speed-critical routes (`analyze-project`, `generate-answer`, `generate-project-description`); OpenAI handles quality-critical routes (`generate-all-answers`, `generate-spec`). Falls back to OpenAI if `GROQ_API_KEY` is not set.
+**LLM routing.** Never instantiate `new OpenAI()` directly in a route. Always use `getLLM(route)` from `@/lib/llm` — it returns the right client, model, and provider based on the route name.
+
+| Route | Provider | Model |
+|---|---|---|
+| `analyze-project` | Groq | `openai/gpt-oss-20b` (1000 tps) |
+| `generate-answer` | Groq | `openai/gpt-oss-20b` (1000 tps) |
+| `generate-project-description` | Groq | `openai/gpt-oss-20b` (1000 tps) |
+| `generate-all-answers` | OpenAI | `gpt-5-mini` |
+| `generate-spec` | OpenAI | `gpt-5.1` (flagship) |
+
+Falls back to OpenAI `gpt-5-mini` if `GROQ_API_KEY` is not set. All routes use the OpenAI **Responses API** (`responses.create`), not Chat Completions.
 
 ```typescript
 import { getLLM } from '@/lib/llm';
 const { client, model } = getLLM('my-route');
-const result = await client.chat.completions.create({ model, ... });
+const response = await client.responses.create({
+  model,
+  reasoning: { effort: 'low' },
+  max_output_tokens: 8000,
+  input: [{ role: 'developer', content: systemPrompt }, { role: 'user', content: userPrompt }],
+});
+const text = response.output_text;
 ```
 
 ## Brand & Voice

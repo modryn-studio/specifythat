@@ -68,15 +68,15 @@ All 5 routes were migrated from `openai.chat.completions.create()` to `openai.re
 
 #### Token budgets applied
 
-| Route | `max_output_tokens` | Reasoning effort |
-|---|---|---|
-| `generate-project-description` | 8,000 | `low` |
-| `analyze-project` | 10,000 | `low` |
-| `generate-all-answers` | 20,000 | `low` |
-| `generate-answer` | 8,000 | `low` |
-| `generate-spec` | 25,000 | `low` |
+| Route | Provider | Model | `max_output_tokens` | Reasoning effort |
+|---|---|---|---|---|
+| `generate-project-description` | Groq | `openai/gpt-oss-20b` | 8,000 | `low` |
+| `analyze-project` | Groq | `openai/gpt-oss-20b` | 10,000 | `low` |
+| `generate-answer` | Groq | `openai/gpt-oss-20b` | 8,000 | `low` |
+| `generate-all-answers` | OpenAI | `gpt-5-mini` | 20,000 | `low` |
+| `generate-spec` | OpenAI | `gpt-5.1` | 25,000 | `low` |
 
-All set to `effort: 'low'` — suitable for well-defined, short-output tasks on a fast path.
+All set to `effort: 'low'` — suitable for well-defined, short-output tasks on a fast path. `generate-spec` was upgraded from `gpt-5-mini` → `gpt-5.1` on 2026-03-04 (current OpenAI flagship, same price as `gpt-5`).
 
 ---
 
@@ -187,11 +187,11 @@ ANTHROPIC_API_KEY=sk-ant-...   # instead of OPENAI_API_KEY
 
 | File | Change |
 |---|---|
-| `src/app/api/generate-project-description/route.ts` | `chat.completions` → `responses.create`, `max_tokens` → `max_output_tokens: 8000`, added `reasoning: { effort: 'low' }` |
-| `src/app/api/analyze-project/route.ts` | Same migration. Tool type updated from `ChatCompletionTool` → `FunctionTool` (flat structure, added `strict: false`). Tool result parsed from `output` array instead of `tool_calls`. |
-| `src/app/api/generate-all-answers/route.ts` | Same migration. Model also upgraded from `gpt-4o-mini` → `gpt-5-mini`. Removed `temperature` (not supported on reasoning models). |
-| `src/app/api/generate-answer/route.ts` | Same migration. |
-| `src/app/api/generate-spec/route.ts` | Same migration. |
+| `src/app/api/generate-project-description/route.ts` | `chat.completions` → `responses.create`, `max_tokens` → `max_output_tokens: 8000`, added `reasoning: { effort: 'low' }`. Routed to Groq (`openai/gpt-oss-20b`). |
+| `src/app/api/analyze-project/route.ts` | Same migration. Tool type updated from `ChatCompletionTool` → `FunctionTool` (flat structure, added `strict: false`). Tool result parsed from `output` array instead of `tool_calls`. Routed to Groq (`openai/gpt-oss-20b`). |
+| `src/app/api/generate-all-answers/route.ts` | Same migration. Model upgraded from `gpt-4o-mini` → `gpt-5-mini`. Removed `temperature` (not supported on reasoning models). |
+| `src/app/api/generate-answer/route.ts` | Same migration. Routed to Groq (`openai/gpt-oss-20b`). |
+| `src/app/api/generate-spec/route.ts` | Same migration. Upgraded to `gpt-5.1` on 2026-03-04 (current OpenAI flagship). |
 
 ---
 
