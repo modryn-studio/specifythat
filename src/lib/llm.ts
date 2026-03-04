@@ -31,7 +31,7 @@ const ROUTE_MAP: Record<LLMRoute, RouteConfig> = {
   'generate-answer':              { provider: 'groq',   model: 'openai/gpt-oss-20b' },
   'generate-project-description': { provider: 'groq',   model: 'openai/gpt-oss-20b' },
   'generate-all-answers':         { provider: 'openai', model: 'gpt-5-mini' },
-  'generate-spec':                { provider: 'openai', model: 'gpt-5-mini' },
+  'generate-spec':                { provider: 'openai', model: 'gpt-5.1' },
 };
 
 // ── Provider clients (lazy singletons) ───────────────

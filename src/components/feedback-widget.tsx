@@ -88,9 +88,9 @@ export default function FeedbackWidget() {
 
   // Shared form body used in both mobile and desktop panels
   const formBody = (
-    <div style={{ padding: '16px' }}>
+    <div className="p-4">
       {state === 'done' ? (
-        <p style={{ fontSize: '13px', color: 'var(--color-text)' }}>Thanks. Noted. 👊</p>
+        <p className="font-mono text-sm">Thanks. Noted. 👊</p>
       ) : (
         <>
           <textarea
@@ -101,19 +101,7 @@ export default function FeedbackWidget() {
             placeholder="What's broken? What's missing? What do you need?"
             disabled={state === 'submitting'}
             rows={4}
-            style={{
-              width: '100%',
-              resize: 'none',
-              border: '1px solid var(--color-border)',
-              background: 'transparent',
-              padding: '12px',
-              fontSize: '13px',
-              color: 'var(--color-text)',
-              outline: 'none',
-              opacity: state === 'submitting' ? 0.5 : 1,
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+            className="w-full resize-none border border-(--color-border) bg-transparent p-3 font-mono text-sm transition-colors outline-none placeholder:text-(--color-muted) focus:border-(--color-accent) disabled:opacity-50"
           />
           <input
             type="email"
@@ -122,37 +110,14 @@ export default function FeedbackWidget() {
             onKeyDown={handleKeyDown}
             placeholder="Email (optional — for a reply)"
             disabled={state === 'submitting'}
-            style={{
-              width: '100%',
-              marginTop: '8px',
-              border: '1px solid var(--color-border)',
-              background: 'transparent',
-              padding: '10px 12px',
-              fontSize: '12px',
-              color: 'var(--color-text)',
-              outline: 'none',
-              opacity: state === 'submitting' ? 0.5 : 1,
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+            className="mt-2 w-full border border-(--color-border) bg-transparent p-3 font-mono text-xs transition-colors outline-none placeholder:text-(--color-muted) focus:border-(--color-accent) disabled:opacity-50"
           />
-          {error && <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--color-error, #ef4444)' }}>{error}</p>}
-          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+          {error && <p className="mt-2 font-mono text-xs text-red-500">{error}</p>}
+          <div className="mt-3 flex justify-end">
             <button
               onClick={handleSubmit}
               disabled={!message.trim() || state === 'submitting'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#fff',
-                background: !message.trim() || state === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-accent)',
-                border: 'none',
-                cursor: !message.trim() || state === 'submitting' ? 'not-allowed' : 'pointer',
-              }}
+              className="flex items-center gap-2 bg-(--color-accent) px-4 py-2 font-mono text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Send size={12} />
               {state === 'submitting' ? 'Sending...' : 'Send'}
@@ -164,12 +129,12 @@ export default function FeedbackWidget() {
   );
 
   const panelHeader = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--color-border)' }}>
-      <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text)' }}>Feedback</span>
+    <div className="flex items-center justify-between border-b border-(--color-border) px-4 py-3">
+      <span className="font-mono text-xs font-bold tracking-widest uppercase">Feedback</span>
       <button
         onClick={close}
+        className="-mr-1 p-1 text-(--color-muted) transition-colors hover:text-(--color-text)"
         aria-label="Close"
-        style={{ padding: '4px', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
       >
         <X size={14} />
       </button>
@@ -178,21 +143,22 @@ export default function FeedbackWidget() {
 
   return (
     <>
-      {/* ── Mobile: slide-up sheet from bottom, hidden on md+ ── */}
+      {/* ── Mobile: slide-up sheet from bottom ── */}
       <div
         className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out md:hidden ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
+        {/* Tap-outside backdrop */}
         {isOpen && <div className="fixed inset-0 -z-10 bg-black/20" onClick={close} />}
-        <div style={{ borderTop: '2px solid var(--color-border)', background: 'var(--color-bg)', boxShadow: '0 -8px 30px rgba(0,0,0,0.2)' }}>
+        <div className="border-t-2 border-(--color-border) bg-(--color-surface) shadow-2xl">
           {panelHeader}
           {formBody}
         </div>
       </div>
 
-      {/* ── Desktop: filing-cabinet drawer from right edge, hidden on mobile ── */}
-      {/* Whole assembly translates together. Closed = shifted right by panel width (288px),
+      {/* ── Desktop: filing-cabinet drawer ── */}
+      {/* Whole assembly translates together. Closed = shifted right by panel width (w-72 = 288px),
           leaving only the tab visible at the viewport edge. Open = translate-x-0. */}
       <div
         className={`fixed top-1/2 right-0 z-50 hidden -translate-y-1/2 items-start transition-transform duration-300 ease-out md:flex ${
@@ -202,27 +168,13 @@ export default function FeedbackWidget() {
         {/* Tab — leftmost, always the visible "handle" */}
         <button
           onClick={() => setState(isOpen ? 'idle' : 'open')}
+          className="flex shrink-0 items-center border-y-2 border-l-2 border-(--color-border) bg-(--color-surface) px-1.5 py-3 font-mono text-[0.6rem] font-bold tracking-widest uppercase text-(--color-accent) shadow-md transition-colors hover:bg-(--color-border)"
           aria-label={isOpen ? 'Close feedback' : 'Open feedback'}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '12px 6px',
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--color-accent)',
-            background: 'var(--color-bg)',
-            border: '2px solid var(--color-border)',
-            borderRight: 'none',
-            cursor: 'pointer',
-            boxShadow: '-2px 0 8px rgba(0,0,0,0.1)',
-          }}
         >
           <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Feedback</span>
         </button>
         {/* Panel — slides in with the tab */}
-        <div style={{ width: '288px', border: '2px solid var(--color-border)', background: 'var(--color-bg)', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+        <div className="w-72 border-2 border-(--color-border) bg-(--color-surface) shadow-xl">
           {panelHeader}
           {formBody}
         </div>

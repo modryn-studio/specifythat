@@ -6,8 +6,7 @@ export function FeedbackTrigger() {
   return (
     <button
       onClick={() => window.dispatchEvent(new CustomEvent('open-feedback'))}
-      className="cursor-pointer text-xs transition-colors md:hidden"
-      style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none' }}
+      className="cursor-pointer font-mono text-xs text-(--color-accent) transition-opacity hover:opacity-80 md:hidden"
     >
       Feedback
     </button>
